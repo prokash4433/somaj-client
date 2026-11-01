@@ -1,9 +1,77 @@
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
- 
-  body {
-     font-family: var(--font-josefin), sans-serif;
-  }
-  
+/* Tailwind CSS v4 Dark Mode Support */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Light Theme */
+:root {
+  color-scheme: light;
+
+  --background: #f7faf5;
+  --foreground: #17251b;
+
+  --card: #ffffff;
+  --card-foreground: #17251b;
+
+  --border: #dce5d8;
+
+  --primary: #536d13;
+  --primary-foreground: #ffffff;
+
+  --muted: #edf2e9;
+  --muted-foreground: #64748b;
+}
+
+/* Dark Theme */
+.dark {
+  color-scheme: dark;
+
+  --background: #0d1a14;
+  --foreground: #f1f5f1;
+
+  --card: #14251e;
+  --card-foreground: #f1f5f1;
+
+  --border: #26372b;
+
+  --primary: #829f20;
+  --primary-foreground: #101e18;
+
+  --muted: #1b3025;
+  --muted-foreground: #a1a1aa;
+}
+
+/* Tailwind Theme Variables */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-border: var(--border);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+}
+
+/* Global Styles */
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100%;
+  font-family: var(--font-josefin), sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  transition:
+    background-color 300ms ease-in-out,
+    color 300ms ease-in-out;
+}
