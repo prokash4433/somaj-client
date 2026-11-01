@@ -32,11 +32,11 @@ const Countdown = () => {
           const isDark = theme === "dark";
 
           return (
-                    <section className="relative w-full px-5 pb-10 pt-2">
+                    <section className="relative w-full px-3 pb-10 mt-10 pt-2 sm:px-5">
                               <div className="mx-auto max-w-[900px]">
 
                                         {/* Statistics Panel */}
-                                        <div className="grid grid-cols-2 gap-3 rounded-2xl p-3 md:grid-cols-4 md:gap-4 md:p-4">
+                                        <div className="grid grid-cols-1 gap-3 rounded-2xl p-3 sm:grid-cols-2 md:gap-4 md:p-4 lg:grid-cols-4">
 
                                                   {statistics.map((stat) => (
                                                             <div

@@ -5,6 +5,7 @@ import "./globals.css";
 
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "next-themes";
+import Footer from "@/components/Footer";
 
 const josefinSans = Josefin_Sans({
   subsets: ["latin"],
@@ -39,7 +40,7 @@ export default function RootLayout({
           <main className="flex-1">
             {children}
           </main>
-
+           <Footer/>
         </ThemeProvider>
 
       </body>
