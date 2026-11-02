@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
@@ -12,13 +11,13 @@ import {
           MapPin,
           Tag,
           User,
-          Pencil,
           Trash2,
           Eye,
           CalendarDays,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import EditEventDialog from "@/components/shared/EditEventDialog";
 
 type EventItem = {
           id: string;
@@ -29,6 +28,19 @@ type EventItem = {
           description: string;
           organizer: string;
           image: string;
+};
+
+// EditEventDialog theke ja ferot ashe tar shape
+type EventUpdate = {
+          id?: string;
+          _id?: string;
+          title?: string;
+          category?: string;
+          date?: string;
+          location?: string;
+          description?: string;
+          organizer?: string;
+          image?: string;
 };
 
 const STORAGE_KEY = "events";
@@ -44,13 +56,16 @@ const readEvents = (): EventItem[] => {
 
                     if (!Array.isArray(parsed)) return [];
 
-                    return parsed.filter(
+                    const valid = parsed.filter(
                               (event): event is EventItem =>
                                         event !== null &&
                                         typeof event === "object" &&
                                         typeof event.id === "string" &&
                                         typeof event.title === "string"
                     );
+
+                    // Same id duibar thakle shudhu ekta rakhbe (duplicate key fix)
+                    return Array.from(new Map(valid.map((event) => [event.id, event])).values());
           } catch {
                     return [];
           }
@@ -115,9 +130,7 @@ const ManageEventPage = () => {
 
                     if (!shouldDelete) return;
 
-                    const updatedEvents = readEvents().filter(
-                              (event) => event.id !== id
-                    );
+                    const updatedEvents = readEvents().filter((event) => event.id !== id);
 
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEvents));
 
@@ -125,6 +138,28 @@ const ManageEventPage = () => {
                     window.dispatchEvent(new Event(EVENTS_UPDATED_EVENT));
 
                     setEvents(updatedEvents);
+          };
+
+          // Edit successful hole list ar localStorage duto-i update hobe
+          const handleEventUpdated = (id: string, updated: EventUpdate) => {
+                    const nextEvents = readEvents().map((item) =>
+                              item.id === id
+                                        ? {
+                                                  ...item,
+                                                  title: updated.title ?? item.title,
+                                                  category: updated.category ?? item.category,
+                                                  date: updated.date ?? item.date,
+                                                  location: updated.location ?? item.location,
+                                                  description: updated.description ?? item.description,
+                                                  organizer: updated.organizer ?? item.organizer,
+                                                  image: updated.image ?? item.image,
+                                        }
+                                        : item
+                    );
+
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextEvents));
+                    window.dispatchEvent(new Event(EVENTS_UPDATED_EVENT));
+                    setEvents(nextEvents);
           };
 
           return (
@@ -145,8 +180,8 @@ const ManageEventPage = () => {
                                                                                 </h1>
 
                                                                                 <p className="max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
-                                                                                          View, edit, and manage the social drives you have
-                                                                                          published. Keep all your initiatives organized in one place.
+                                                                                          View, edit, and manage the social drives you have published.
+                                                                                          Keep all your initiatives organized in one place.
                                                                                 </p>
                                                                       </div>
                                                             </div>
@@ -186,17 +221,21 @@ const ManageEventPage = () => {
                                                                       >
                                                                                 {/* Image */}
                                                                                 <div className="relative h-52 w-full overflow-hidden bg-[#edf3e6] dark:bg-[#14221b]">
-                                                                                          {event.image ? (
+                                                                                          <div className="absolute inset-0 flex items-center justify-center text-[#718b32] dark:text-[#a8cf35]">
+                                                                                                    <CalendarDays size={48} strokeWidth={1.4} />
+                                                                                          </div>
+
+                                                                                          {event.image && (
                                                                                                     // eslint-disable-next-line @next/next/no-img-element
                                                                                                     <img
                                                                                                               src={event.image}
                                                                                                               alt={event.title || "Event"}
-                                                                                                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                                                                              onError={(e) => {
+                                                                                                                        // Vanga URL hole image lukiye placeholder icon dekhabe
+                                                                                                                        e.currentTarget.style.display = "none";
+                                                                                                              }}
+                                                                                                              className="relative h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                                                                     />
-                                                                                          ) : (
-                                                                                                    <div className="flex h-full items-center justify-center text-[#718b32] dark:text-[#a8cf35]">
-                                                                                                              <CalendarDays size={48} strokeWidth={1.4} />
-                                                                                                    </div>
                                                                                           )}
 
                                                                                           <span className="absolute left-3 top-3 inline-flex max-w-[85%] items-center gap-1.5 truncate rounded-full border border-white/15 bg-[#14221b]/85 px-3 py-1.5 text-xs font-bold text-[#c5e77b] shadow-sm backdrop-blur">
@@ -207,10 +246,7 @@ const ManageEventPage = () => {
                                                                                           </span>
 
                                                                                           <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#14221b]/85 px-3 py-1.5 text-xs font-bold text-white shadow-sm backdrop-blur">
-                                                                                                    <Calendar
-                                                                                                              size={13}
-                                                                                                              className="shrink-0 text-[#a8cf35]"
-                                                                                                    />
+                                                                                                    <Calendar size={13} className="shrink-0 text-[#a8cf35]" />
                                                                                                     {formatDate(event.date)}
                                                                                           </span>
                                                                                 </div>
@@ -257,24 +293,18 @@ const ManageEventPage = () => {
                                                                                                               </Button>
                                                                                                     </Link>
 
-                                                                                                    <Link
-                                                                                                              href={`/events/edit/${event.id}`}
-                                                                                                              aria-label={`Edit ${event.title}`}
-                                                                                                    >
-                                                                                                              <Button
-                                                                                                                        variant="outline"
-                                                                                                                        className="h-9 cursor-pointer rounded-lg border border-[#dce5d9] bg-[#f0f5e9] px-3 text-xs font-bold text-[#354d24] shadow-sm transition-all duration-300 hover:border-[#829f20] hover:bg-[#e3eed5] hover:text-[#283d18] active:scale-[0.98] dark:border-[#34443a] dark:bg-[#14221b] dark:text-[#a8cf35] dark:hover:border-[#829f20] dark:hover:bg-[#283d18] dark:hover:text-white"
-                                                                                                              >
-                                                                                                                        <Pencil size={13} className="mr-1.5" />
-                                                                                                                        Edit
-                                                                                                              </Button>
-                                                                                                    </Link>
+                                                                                                    <EditEventDialog
+                                                                                                              event={event}
+                                                                                                              onUpdated={(updatedEvent) =>
+                                                                                                                        handleEventUpdated(event.id, updatedEvent)
+                                                                                                              }
+                                                                                                    />
 
                                                                                                     <Button
                                                                                                               type="button"
                                                                                                               variant="outline"
                                                                                                               aria-label={`Delete ${event.title}`}
-                                                                                                              onClick={() => handleDelete(event.id)}
+                                                                                                              // onClick={() => handleDelete(event.id)}
                                                                                                               className="h-9 cursor-pointer rounded-lg border border-red-500/30 bg-red-500/10 px-3 text-xs font-bold text-red-600 transition-all hover:border-red-500/50 hover:bg-red-500/15 hover:text-red-700 active:scale-[0.98] dark:text-red-400 dark:hover:text-red-300"
                                                                                                     >
                                                                                                               <Trash2 size={13} className="mr-1.5" />
