@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
           Settings,
           PlusCircle,
@@ -11,16 +12,17 @@ import {
           MapPin,
           Tag,
           User,
-          Trash2,
           Eye,
           CalendarDays,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import EditEventDialog from "@/components/shared/EditEventDialog";
+import DeleteEventDialog from "@/components/shared/DeleteEventDialog";
 
 type EventItem = {
           id: string;
+          _id?: string;
           title: string;
           category: string;
           date: string;
@@ -30,7 +32,6 @@ type EventItem = {
           image: string;
 };
 
-// EditEventDialog theke ja ferot ashe tar shape
 type EventUpdate = {
           id?: string;
           _id?: string;
@@ -45,6 +46,9 @@ type EventUpdate = {
 
 const STORAGE_KEY = "events";
 const EVENTS_UPDATED_EVENT = "events-updated";
+
+const getEventId = (event: EventItem) =>
+          String(event._id ?? event.id ?? "").trim();
 
 const readEvents = (): EventItem[] => {
           try {
@@ -61,11 +65,13 @@ const readEvents = (): EventItem[] => {
                                         event !== null &&
                                         typeof event === "object" &&
                                         typeof event.id === "string" &&
-                                        typeof event.title === "string"
+                                        typeof event.title === "string",
                     );
 
-                    // Same id duibar thakle shudhu ekta rakhbe (duplicate key fix)
-                    return Array.from(new Map(valid.map((event) => [event.id, event])).values());
+                    // Remove duplicate events using the database ID when available.
+                    return Array.from(
+                              new Map(valid.map((event) => [getEventId(event), event])).values(),
+                    );
           } catch {
                     return [];
           }
@@ -102,13 +108,10 @@ const ManageEventPage = () => {
           }, []);
 
           useEffect(() => {
-                    // Load saved events when the page opens.
                     syncEvents();
 
-                    // Update immediately when another component saves an event.
                     window.addEventListener(EVENTS_UPDATED_EVENT, syncEvents);
 
-                    // Update when localStorage changes in another tab.
                     const handleStorage = (event: StorageEvent) => {
                               if (event.key === STORAGE_KEY || event.key === null) {
                                         syncEvents();
@@ -123,29 +126,16 @@ const ManageEventPage = () => {
                     };
           }, [syncEvents]);
 
-          const handleDelete = (id: string) => {
-                    const shouldDelete = window.confirm(
-                              "Are you sure you want to delete this event?"
-                    );
-
-                    if (!shouldDelete) return;
-
-                    const updatedEvents = readEvents().filter((event) => event.id !== id);
-
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEvents));
-
-                    // Notify components in the current tab immediately.
-                    window.dispatchEvent(new Event(EVENTS_UPDATED_EVENT));
-
-                    setEvents(updatedEvents);
-          };
-
-          // Edit successful hole list ar localStorage duto-i update hobe
           const handleEventUpdated = (id: string, updated: EventUpdate) => {
+                    const normalizedId = String(id).trim();
+
                     const nextEvents = readEvents().map((item) =>
-                              item.id === id
+                              getEventId(item) === normalizedId
                                         ? {
                                                   ...item,
+                                                  ...updated,
+                                                  id: item.id,
+                                                  _id: item._id,
                                                   title: updated.title ?? item.title,
                                                   category: updated.category ?? item.category,
                                                   date: updated.date ?? item.date,
@@ -154,12 +144,33 @@ const ManageEventPage = () => {
                                                   organizer: updated.organizer ?? item.organizer,
                                                   image: updated.image ?? item.image,
                                         }
-                                        : item
+                                        : item,
                     );
 
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextEvents));
-                    window.dispatchEvent(new Event(EVENTS_UPDATED_EVENT));
                     setEvents(nextEvents);
+                    window.dispatchEvent(new Event(EVENTS_UPDATED_EVENT));
+          };
+
+          const handleEventDeleted = (deletedId: string) => {
+                    const normalizedDeletedId = String(deletedId).trim();
+
+                    if (!normalizedDeletedId) return;
+
+                    // Update React state immediately so the card disappears.
+                    setEvents((currentEvents) =>
+                              currentEvents.filter((item) => getEventId(item) !== normalizedDeletedId),
+                    );
+
+                    // Synchronize localStorage using the same ID.
+                    const nextEvents = readEvents().filter(
+                              (item) => getEventId(item) !== normalizedDeletedId,
+                    );
+
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextEvents));
+
+                    // Notify other components in the current tab.
+                    window.dispatchEvent(new Event(EVENTS_UPDATED_EVENT));
           };
 
           return (
@@ -214,106 +225,112 @@ const ManageEventPage = () => {
                                                             className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                                                             aria-label="My events"
                                                   >
-                                                            {events.map((event) => (
-                                                                      <article
-                                                                                key={event.id}
-                                                                                className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#829f20]/50 hover:shadow-lg"
-                                                                      >
-                                                                                {/* Image */}
-                                                                                <div className="relative h-52 w-full overflow-hidden bg-[#edf3e6] dark:bg-[#14221b]">
-                                                                                          <div className="absolute inset-0 flex items-center justify-center text-[#718b32] dark:text-[#a8cf35]">
-                                                                                                    <CalendarDays size={48} strokeWidth={1.4} />
-                                                                                          </div>
+                                                            {events.map((event) => {
+                                                                      const eventId = getEventId(event);
 
-                                                                                          {event.image && (
-                                                                                                    // eslint-disable-next-line @next/next/no-img-element
-                                                                                                    <img
-                                                                                                              src={event.image}
-                                                                                                              alt={event.title || "Event"}
-                                                                                                              onError={(e) => {
-                                                                                                                        // Vanga URL hole image lukiye placeholder icon dekhabe
-                                                                                                                        e.currentTarget.style.display = "none";
-                                                                                                              }}
-                                                                                                              className="relative h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                                                                                    />
-                                                                                          )}
+                                                                      return (
+                                                                                <article
+                                                                                          key={eventId}
+                                                                                          className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#829f20]/50 hover:shadow-lg"
+                                                                                >
+                                                                                          {/* Image */}
+                                                                                          <div className="relative h-52 w-full overflow-hidden bg-[#edf3e6] dark:bg-[#14221b]">
+                                                                                                    {/* Placeholder Icon */}
+                                                                                                    <div className="absolute inset-0 flex items-center justify-center text-[#718b32] dark:text-[#a8cf35]">
+                                                                                                              <CalendarDays size={48} strokeWidth={1.4} />
+                                                                                                    </div>
 
-                                                                                          <span className="absolute left-3 top-3 inline-flex max-w-[85%] items-center gap-1.5 truncate rounded-full border border-white/15 bg-[#14221b]/85 px-3 py-1.5 text-xs font-bold text-[#c5e77b] shadow-sm backdrop-blur">
-                                                                                                    <Tag size={12} className="shrink-0 text-[#a8cf35]" />
-                                                                                                    <span className="truncate">
-                                                                                                              {event.category || "Community"}
+                                                                                                    {/* Event Image */}
+                                                                                                    {event.image?.trim() && (
+                                                                                                              <Image
+                                                                                                                        src={event.image}
+                                                                                                                        alt={event.title || "Event image"}
+                                                                                                                        fill
+                                                                                                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                                                                                                        unoptimized
+                                                                                                                        onError={(e) => {
+                                                                                                                                  e.currentTarget.style.display = "none";
+                                                                                                                        }}
+                                                                                                                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                                                                              />
+                                                                                                    )}
+
+                                                                                                    {/* Category Badge */}
+                                                                                                    <span className="absolute left-3 top-3 z-10 inline-flex max-w-[85%] items-center gap-1.5 truncate rounded-full border border-white/15 bg-[#14221b]/85 px-3 py-1.5 text-xs font-bold text-[#c5e77b] shadow-sm backdrop-blur">
+                                                                                                              <Tag size={12} className="shrink-0 text-[#a8cf35]" />
+                                                                                                              <span className="truncate">
+                                                                                                                        {event.category || "Community"}
+                                                                                                              </span>
                                                                                                     </span>
-                                                                                          </span>
 
-                                                                                          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#14221b]/85 px-3 py-1.5 text-xs font-bold text-white shadow-sm backdrop-blur">
-                                                                                                    <Calendar size={13} className="shrink-0 text-[#a8cf35]" />
-                                                                                                    {formatDate(event.date)}
-                                                                                          </span>
-                                                                                </div>
-
-                                                                                {/* Event Content */}
-                                                                                <div className="flex h-[260px] flex-col p-5">
-                                                                                          <h3 className="line-clamp-2 min-h-12 text-lg font-extrabold leading-6 text-foreground transition-colors group-hover:text-[#718b32] dark:group-hover:text-[#a8cf35]">
-                                                                                                    {event.title}
-                                                                                          </h3>
-
-                                                                                          <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-                                                                                                    <MapPin
-                                                                                                              size={14}
-                                                                                                              className="shrink-0 text-[#718b32] dark:text-[#a8cf35]"
-                                                                                                    />
-                                                                                                    <span className="line-clamp-1">
-                                                                                                              {event.location || "Location not specified"}
-                                                                                                    </span>
-                                                                                          </p>
-
-                                                                                          <p className="mt-3 line-clamp-2 text-xs leading-5 text-muted-foreground">
-                                                                                                    {event.description || "No description provided."}
-                                                                                          </p>
-
-                                                                                          <div className="mt-auto flex items-center gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
-                                                                                                    <User
-                                                                                                              size={14}
-                                                                                                              className="shrink-0 text-[#718b32] dark:text-[#a8cf35]"
-                                                                                                    />
-                                                                                                    <span className="line-clamp-1">
-                                                                                                              {event.organizer || "Event Organizer"}
+                                                                                                    {/* Event Date */}
+                                                                                                    <span className="absolute bottom-3 left-3 z-10 inline-flex max-w-[90%] items-center gap-1.5 rounded-lg border border-white/10 bg-[#14221b]/85 px-3 py-1.5 text-xs font-bold text-white shadow-sm backdrop-blur">
+                                                                                                              <Calendar size={13} className="shrink-0 text-[#a8cf35]" />
+                                                                                                              <span className="truncate">{formatDate(event.date)}</span>
                                                                                                     </span>
                                                                                           </div>
 
-                                                                                          {/* Action Buttons */}
-                                                                                          <div className="flex items-center gap-2 pt-3">
-                                                                                                    <Link href={`/events/${event.id}`} className="min-w-0 flex-1">
-                                                                                                              <Button
-                                                                                                                        variant="secondary"
-                                                                                                                        className="h-9 w-full cursor-pointer rounded-lg border border-[#dce5d9] bg-[#f0f5e9] px-2 text-xs font-bold text-[#354d24] shadow-sm transition-all duration-300 hover:border-[#829f20] hover:bg-[#e3eed5] hover:text-[#283d18] active:scale-[0.98] dark:border-[#34443a] dark:bg-[#14221b] dark:text-[#a8cf35] dark:hover:border-[#829f20] dark:hover:bg-[#283d18] dark:hover:text-white"
+                                                                                          {/* Event Content */}
+                                                                                          <div className="flex h-[260px] flex-col p-5">
+                                                                                                    <h3 className="line-clamp-2 min-h-12 text-lg font-extrabold leading-6 text-foreground transition-colors group-hover:text-[#718b32] dark:group-hover:text-[#a8cf35]">
+                                                                                                              {event.title}
+                                                                                                    </h3>
+
+                                                                                                    <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                                                                                                              <MapPin
+                                                                                                                        size={14}
+                                                                                                                        className="shrink-0 text-[#718b32] dark:text-[#a8cf35]"
+                                                                                                              />
+                                                                                                              <span className="line-clamp-1">
+                                                                                                                        {event.location || "Location not specified"}
+                                                                                                              </span>
+                                                                                                    </p>
+
+                                                                                                    <p className="mt-3 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                                                                                                              {event.description || "No description provided."}
+                                                                                                    </p>
+
+                                                                                                    <div className="mt-auto flex items-center gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+                                                                                                              <User
+                                                                                                                        size={14}
+                                                                                                                        className="shrink-0 text-[#718b32] dark:text-[#a8cf35]"
+                                                                                                              />
+                                                                                                              <span className="line-clamp-1">
+                                                                                                                        {event.organizer || "Event Organizer"}
+                                                                                                              </span>
+                                                                                                    </div>
+
+                                                                                                    {/* Action Buttons */}
+                                                                                                    <div className="flex items-center gap-2 pt-3">
+                                                                                                              <Link
+                                                                                                                        href={`/events/${eventId}`}
+                                                                                                                        className="min-w-0 flex-1"
                                                                                                               >
-                                                                                                                        <Eye size={13} className="mr-1.5 shrink-0" />
-                                                                                                                        View
-                                                                                                              </Button>
-                                                                                                    </Link>
+                                                                                                                        <Button
+                                                                                                                                  variant="secondary"
+                                                                                                                                  className="h-9 w-full cursor-pointer rounded-lg border border-[#dce5d9] bg-[#f0f5e9] px-2 text-xs font-bold text-[#354d24] shadow-sm transition-all duration-300 hover:border-[#829f20] hover:bg-[#e3eed5] hover:text-[#283d18] active:scale-[0.98] dark:border-[#34443a] dark:bg-[#14221b] dark:text-[#a8cf35] dark:hover:border-[#829f20] dark:hover:bg-[#283d18] dark:hover:text-white"
+                                                                                                                        >
+                                                                                                                                  <Eye size={13} className="mr-1.5 shrink-0" />
+                                                                                                                                  View
+                                                                                                                        </Button>
+                                                                                                              </Link>
 
-                                                                                                    <EditEventDialog
-                                                                                                              event={event}
-                                                                                                              onUpdated={(updatedEvent) =>
-                                                                                                                        handleEventUpdated(event.id, updatedEvent)
-                                                                                                              }
-                                                                                                    />
+                                                                                                              <EditEventDialog
+                                                                                                                        event={event}
+                                                                                                                        onUpdated={(updatedEvent) =>
+                                                                                                                                  handleEventUpdated(eventId, updatedEvent)
+                                                                                                                        }
+                                                                                                              />
 
-                                                                                                    <Button
-                                                                                                              type="button"
-                                                                                                              variant="outline"
-                                                                                                              aria-label={`Delete ${event.title}`}
-                                                                                                              // onClick={() => handleDelete(event.id)}
-                                                                                                              className="h-9 cursor-pointer rounded-lg border border-red-500/30 bg-red-500/10 px-3 text-xs font-bold text-red-600 transition-all hover:border-red-500/50 hover:bg-red-500/15 hover:text-red-700 active:scale-[0.98] dark:text-red-400 dark:hover:text-red-300"
-                                                                                                    >
-                                                                                                              <Trash2 size={13} className="mr-1.5" />
-                                                                                                              Delete
-                                                                                                    </Button>
+                                                                                                              <DeleteEventDialog
+                                                                                                                        eventId={eventId}
+                                                                                                                        onDeleted={handleEventDeleted}
+                                                                                                              />
+                                                                                                    </div>
                                                                                           </div>
-                                                                                </div>
-                                                                      </article>
-                                                            ))}
+                                                                                </article>
+                                                                      );
+                                                            })}
                                                   </section>
                                         )}
 
@@ -321,6 +338,7 @@ const ManageEventPage = () => {
                                         {loaded && events.length === 0 && (
                                                   <section className="relative flex min-h-[380px] flex-col items-center justify-center overflow-hidden rounded-[28px] border border-dashed border-[#526b24]/40 bg-card/40 px-5 py-14 text-center shadow-sm sm:min-h-[400px] sm:px-10">
                                                             <div className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#829f20]/[0.06] blur-3xl" />
+
                                                             <div className="pointer-events-none absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-[#3b5426]/[0.08] blur-3xl" />
 
                                                             <div className="relative mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#526b24]/30 bg-[#3b5426]/10 text-[#718b32] shadow-sm transition-all duration-300 hover:rotate-6 hover:scale-110 dark:text-[#a8cf35]">

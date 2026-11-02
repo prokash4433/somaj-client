@@ -389,7 +389,7 @@ const CreateEventPage = () => {
           {/* Publish Button */}
           <Button
           type="submit"
-          disabled={!today || loading}
+                                                                                disabled={!today || loading}
 className="h-12 w-full cursor-pointer rounded-xl border border-[#526b24] bg-[#3b5426] text-base font-bold text-white shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-[#829f20] hover:bg-[#3b5426] hover:text-white active:scale-[0.98] disabled:cursor-not-allowed disabled:hover:scale-100"
                                                                       >
                                                                                 <PlusCircle size={19} className="mr-2" />
