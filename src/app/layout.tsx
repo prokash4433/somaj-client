@@ -6,6 +6,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "next-themes";
 import Footer from "@/components/Footer";
+import { Toaster } from "sonner";
+ 
 
 const josefinSans = Josefin_Sans({
   subsets: ["latin"],
@@ -35,6 +37,13 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange={false}
         >
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            duration={5000}
+            theme="system"
+          />
           <Navbar/>
 
           <main className="flex-1">

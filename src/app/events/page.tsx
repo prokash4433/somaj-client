@@ -107,10 +107,10 @@ const UpcomingEventPage = () => {
                                                                       Upcoming Events
                                                             </h1>
 
-                                                            <p className="mt-4 text-sm leading-relaxed text-[#4f6356] dark:text-[#9fb2a6] sm:text-[15px]">
-                                                                      Discover verified volunteer initiatives scheduled for upcoming dates. Past
-                                                                      events are automatically excluded so you can focus on active drives that need
-                                                                      support.
+            <p className="mt-4 text-sm leading-relaxed text-[#4f6356] dark:text-[#9fb2a6] sm:text-[15px]">
+            Discover verified volunteer initiatives scheduled for upcoming dates. Past
+            events are automatically excluded so you can focus on active drives that need
+            support.
                                                             </p>
                                                   </div>
 
@@ -136,7 +136,7 @@ const UpcomingEventPage = () => {
                                                                                           role="tab"
                                                                                           aria-selected={isActive}
                                                                                           onClick={() => setActive(c)}
-                                                                                          className={`rounded-full border px-4 py-2 text-xs font-semibold transition duration-300 ease-in-out hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#829f20] ${isActive
+            className={`rounded-full border px-4 py-2 text-xs font-semibold transition duration-300 ease-in-out hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#829f20] ${isActive
                                                                                                               ? "border-[#829f20] bg-[#829f20]/15 text-[#5f7516] shadow-[0_0_18px_-4px_rgba(130,159,32,0.45)] dark:bg-[#829f20]/20 dark:text-[#b4d03a] dark:shadow-[0_0_18px_-4px_rgba(130,159,32,0.55)]"
                                                                                                               : "border-[#829f20]/25 bg-white text-[#4f6356] hover:border-[#829f20]/60 hover:bg-[#829f20]/[0.07] hover:text-[#5f7516] dark:border-[#829f20]/25 dark:bg-[#829f20]/[0.06] dark:text-[#9fb2a6] dark:hover:border-[#829f20]/60 dark:hover:text-white"
                                                                                                     }`}
@@ -152,8 +152,8 @@ const UpcomingEventPage = () => {
                                                             <input
                                                                       value={query}
                                                                       onChange={(e) => setQuery(e.target.value)}
-                                                                      placeholder="Search events or areas..."
-                                                                      className="w-full rounded-xl border border-[#829f20]/30 bg-white py-3 pl-10 pr-4 text-sm text-[#12261a] transition placeholder:text-[#6b7f72] focus:border-[#829f20] focus:outline-none focus:ring-2 focus:ring-[#829f20]/25 dark:border-[#829f20]/25 dark:bg-white/[0.03] dark:text-white dark:placeholder:text-[#7d9084] dark:focus:border-[#829f20] dark:focus:ring-[#829f20]/30"
+               placeholder="Search events or areas..."
+               className="w-full rounded-xl border border-[#829f20]/30 bg-white py-3 pl-10 pr-4 text-sm text-[#12261a] transition placeholder:text-[#6b7f72] focus:border-[#829f20] focus:outline-none focus:ring-2 focus:ring-[#829f20]/25 dark:border-[#829f20]/25 dark:bg-white/[0.03] dark:text-white dark:placeholder:text-[#7d9084] dark:focus:border-[#829f20] dark:focus:ring-[#829f20]/30"
                                                             />
                                                   </label>
                                         </div>
@@ -163,8 +163,8 @@ const UpcomingEventPage = () => {
                                                   {loading &&
                                                             Array.from({ length: 3 }).map((_, i) => (
                                                                       <div
-                                                                                key={i}
-                                                                                className="h-[360px] animate-pulse rounded-2xl border border-black/10 bg-white dark:border-white/10 dark:bg-[#15211b]"
+            key={i}
+         className="h-[360px] animate-pulse rounded-2xl border border-black/10 bg-white dark:border-white/10 dark:bg-[#15211b]"
                                                                       />
                                                             ))}
 
@@ -172,10 +172,10 @@ const UpcomingEventPage = () => {
                                                             filtered.map((e) => (
                                                                       <article
                                                                                 key={e.id}
-                                                                                className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#829f20]/40 hover:shadow-[0_18px_40px_-18px_rgba(60,80,20,0.35)] dark:border-white/10 dark:bg-[#15211b] dark:shadow-none dark:hover:border-[#829f20]/40 dark:hover:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)]"
+className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#829f20]/40 hover:shadow-[0_18px_40px_-18px_rgba(60,80,20,0.35)] dark:border-white/10 dark:bg-[#15211b] dark:shadow-none dark:hover:border-[#829f20]/40 dark:hover:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)]"
                                                                       >
                                                                                 {/* Image */}
-                                                                                <div className="relative aspect-[16/10] overflow-hidden bg-[#e3ece4] dark:bg-[#1b2a22]">
+                  <div className="relative aspect-[16/10] overflow-hidden bg-[#e3ece4] dark:bg-[#1b2a22]">
                                                                                           {e.image ? (
                                                                                                     // eslint-disable-next-line @next/next/no-img-element
                                                                                                     <img
@@ -189,10 +189,10 @@ const UpcomingEventPage = () => {
                                                                                                               <ImageOff className="h-8 w-8" />
                                                                                                     </div>
                                                                                           )}
-                                                                                          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-40 dark:from-[#15211b] dark:opacity-60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-40 dark:from-[#15211b] dark:opacity-60" />
 
-                                                                                          {/* Event type badge */}
-                                                                                          {e.category && (
+                                    {/* Event type badge */}
+               {e.category && (
                                                                                                     <span className="absolute left-3.5 top-3.5 rounded-full border border-[#829f20]/50 bg-[#f4f8e6]/90 px-3 py-1 text-[11px] font-semibold text-[#5f7516] backdrop-blur-md dark:border-[#829f20]/50 dark:bg-[#0d1511]/75 dark:text-[#b4d03a]">
                                                                                                               {e.category}
                                                                                                     </span>
@@ -200,12 +200,12 @@ const UpcomingEventPage = () => {
                                                                                 </div>
 
                                                                                 {/* Body */}
-                                                                                <div className="flex flex-1 flex-col p-5">
-                                                                                          <h3 className="line-clamp-2 text-lg font-bold leading-snug text-[#12261a] dark:text-white">
+            <div className="flex flex-1 flex-col p-5">
+            <h3 className="line-clamp-2 text-lg font-bold leading-snug text-[#12261a] dark:text-white">
                                                                                                     {e.title}
                                                                                           </h3>
 
-                                                                                          <ul className="mt-3 space-y-2 text-sm text-[#4f6356] dark:text-[#9fb2a6]">
+            <ul className="mt-3 space-y-2 text-sm text-[#4f6356] dark:text-[#9fb2a6]">
                                                                                                     {e.location && (
                                                                                                               <li className="flex items-center gap-2.5">
                                                                                                                         <MapPin className="h-4 w-4 shrink-0 text-[#829f20]" strokeWidth={2} />
