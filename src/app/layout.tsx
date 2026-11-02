@@ -35,7 +35,7 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange={false}
         >
-          <Navbar />
+          <Navbar/>
 
           <main className="flex-1">
             {children}
