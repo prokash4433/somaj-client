@@ -146,12 +146,12 @@ const RegisterPage = () => {
                                                                       <div className="group relative mt-2">
                                                                                 <User className={iconClass} strokeWidth={1.75} />
 
-                                                                                <Input
-                                                                                          id="name"
-                                                                                          name="name"
-                                                                                          type="text"
-                                                                                          autoComplete="name"
-                                                                                          placeholder="Tanvir Ahmed"
+                                        <Input
+                                        id="name"
+                                        name="name"
+                                        type="text"
+                                        autoComplete="name"
+                                        placeholder="Your Name"
                                                                                           className={inputClass}
                                                                                           required
                                                                                 />

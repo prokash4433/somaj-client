@@ -5,14 +5,13 @@ import {
           BadgeCheck,
           CalendarDays,
           Check,
-          Lock,
-          Mail,
           MapPin,
           SearchX,
           Tag,
 } from "lucide-react";
 import JoinSection from "./JoinSection";
 import VolunteersCard from "./VolunteersCard";
+import OrganizerContact from "./OrganizerContact";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
 
@@ -253,7 +252,21 @@ const EventDetailsPage = async ({
                     : [];
           const apiJoined = Boolean(event?.isJoined ?? event?.joined ?? event?.hasJoined);
 
-          // Organizer
+          // email -> { name, image } (volunteer দের নাম আর ছবি)
+          const volunteerDetails: Record<string, { name?: string; image?: string }> = {};
+          if (Array.isArray(volunteerSource)) {
+                    volunteerSource.forEach((v: any) => {
+                              if (!v || typeof v !== "object") return;
+                              const email = v?.email ?? v?.userEmail ?? v?.user?.email;
+                              if (typeof email !== "string") return;
+                              volunteerDetails[email] = {
+                                        name: v?.name ?? v?.userName ?? v?.user?.name,
+                                        image: v?.image ?? v?.photo ?? v?.user?.image,
+                              };
+                    });
+          }
+
+          // Organizer (login না থাকলে এই নামটা fallback হিসেবে দেখাবে)
           const orgRaw =
                     event?.organizer ?? event?.createdBy ?? event?.creator ?? event?.user;
           const organizer = orgRaw && typeof orgRaw === "object" ? orgRaw : {};
@@ -267,11 +280,6 @@ const EventDetailsPage = async ({
                     orgString ??
                     event?.organizerName ??
                     "Somaj Team";
-          const organizerEmail: string | undefined =
-                    organizer?.email ??
-                    event?.organizerEmail ??
-                    event?.email ??
-                    event?.userEmail;
 
           // Guidelines (API first, otherwise generated from the event's own data)
           const guidelinesRaw = event?.guidelines ?? event?.volunteerGuidelines;
@@ -424,33 +432,8 @@ const EventDetailsPage = async ({
                                                                                           Initiative Organizer
                                                                                 </h3>
 
-                                                                                <div className="mt-4 flex items-center gap-3">
-                                                                                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3a4d1f] to-[#1d2a14] text-lg font-bold text-white ring-2 ring-lime-700/15 transition-all duration-300 group-hover:ring-[#829f20] dark:ring-lime-200/10 dark:group-hover:ring-[#829f20]">
-                                                                                                    {organizerName.charAt(0).toUpperCase()}
-                                                                                          </div>
-                                                                                          <div className="min-w-0">
-                                                                                                    <p className="truncate text-[15px] font-semibold text-[#10261b] dark:text-white">
-                                                                                                              {organizerName}
-                                                                                                    </p>
-
-                                                                                                    {isLoggedIn ? (
-                                                                                                              organizerEmail && (
-                                                                                                                        <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-emerald-900/60 dark:text-emerald-100/55">
-                                                                                                                                  <Mail size={13} strokeWidth={1.75} className="shrink-0" />
-                                                                                                                                  <span className="truncate">{organizerEmail}</span>
-                                                                                                                        </p>
-                                                                                                              )
-                                                                                                    ) : (
-                                                                                                              <Link
-                                                                                                                        href="/login"
-                                                                                                                        className="mt-0.5 inline-flex items-center gap-1.5 text-xs font-medium text-[#829f20] hover:underline"
-                                                                                                              >
-                                                                                                                        <Lock size={13} strokeWidth={1.75} className="shrink-0" />
-                                                                                                                        Login to view contact
-                                                                                                              </Link>
-                                                                                                    )}
-                                                                                          </div>
-                                                                                </div>
+                                                                                {/* Avatar (image / first letter) + name + email */}
+                                                                                <OrganizerContact organizerName={organizerName} />
 
                                                                                 <div className="mt-5 flex items-center gap-2 border-t border-emerald-900/10 pt-4 text-xs text-emerald-900/65 dark:border-white/10 dark:text-emerald-100/60">
                                                                                           <BadgeCheck
@@ -468,6 +451,7 @@ const EventDetailsPage = async ({
                                                                                 baseEmails={baseEmails}
                                                                                 apiJoined={apiJoined}
                                                                                 isLoggedIn={isLoggedIn}
+                                                                                volunteerDetails={volunteerDetails}
                                                                       />
                                                             </div>
                                                   </div>

@@ -5,9 +5,9 @@ import { useTheme } from "next-themes";
 import Link from "next/link";
 import Countdown from "./shared/CountDown";
 
-const Banner = () => {
+const Banner = (): React.JSX.Element => {
           const { resolvedTheme } = useTheme();
-          const [mounted, setMounted] = useState(false);
+          const [mounted, setMounted] = useState<boolean>(false);
 
           useEffect(() => {
                     setMounted(true);
@@ -15,21 +15,21 @@ const Banner = () => {
 
           // Keep server and initial client rendering consistent.
           // Apply the selected theme after the component mounts.
-          const isDark = mounted && resolvedTheme === "dark";
+          const isDark: boolean = mounted && resolvedTheme === "dark";
 
           return (
                     <section
                               className={`relative mt-10 flex min-h-[365px] w-full items-center justify-center overflow-hidden border-t px-5 py-16 text-center transition-colors duration-300 ${isDark
-                                                  ? "border-[#26372b] bg-gradient-to-r from-[#050805] via-[#111d0e] to-[#263820]"
-                                                  : "border-[#829f20]/30 bg-gradient-to-br from-[#f8fbef] via-[#eef5d9] to-[#dbe9b8]"
+                                        ? "border-[#26372b] bg-gradient-to-r from-[#050805] via-[#111d0e] to-[#263820]"
+                                        : "border-[#829f20]/30 bg-gradient-to-br from-[#f8fbef] via-[#eef5d9] to-[#dbe9b8]"
                                         }`}
                     >
                               {/* Background Glow */}
                               <div
                                         aria-hidden="true"
                                         className={`pointer-events-none absolute inset-0 ${isDark
-                                                            ? "bg-[radial-gradient(ellipse_at_center,rgba(111,148,45,0.10),transparent_65%)]"
-                                                            : "bg-[radial-gradient(ellipse_at_center,rgba(130,159,32,0.18),transparent_65%)]"
+                                                  ? "bg-[radial-gradient(ellipse_at_center,rgba(111,148,45,0.10),transparent_65%)]"
+                                                  : "bg-[radial-gradient(ellipse_at_center,rgba(130,159,32,0.18),transparent_65%)]"
                                                   }`}
                               />
 

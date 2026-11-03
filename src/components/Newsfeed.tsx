@@ -29,7 +29,7 @@ const Newsfeed = () => {
           const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
           const [error, setError] = useState("");
 
-          const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+          const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
                     e.preventDefault();
 
                     const value = email.trim();
