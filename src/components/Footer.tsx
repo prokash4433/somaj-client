@@ -1,8 +1,9 @@
+
 "use client";
 
 import Link from "next/link";
 import {
-      HeartHandshake,
+      HandHeart,
       CalendarDays,
       PlusCircle,
       Settings2,
@@ -51,12 +52,14 @@ const Footer = () => {
 
                   <div className="relative mx-auto max-w-6xl px-5 pb-8 pt-14 sm:px-8">
                         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.3fr_1.2fr] lg:gap-12">
+
                               {/* Brand */}
                               <div>
                                     <Link href="/" className="group inline-flex items-center gap-3">
                                           <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#829f20]/50 bg-gradient-to-br from-[#3b5426] to-[#829f20] text-white shadow-[0_8px_24px_-8px_rgba(90,120,30,0.6)] transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110">
-                                                <HeartHandshake size={22} />
+                                                <HandHeart size={22} />
                                           </span>
+
                                           <span className="bg-gradient-to-r from-[#2f4a1d] via-[#4d6b17] to-[#7a9a1c] bg-clip-text text-2xl font-extrabold tracking-tight text-transparent dark:from-[#a8cf35] dark:via-[#c5e77b] dark:to-[#c5e77b]">
                                                 {BRAND}
                                           </span>
@@ -76,6 +79,7 @@ const Footer = () => {
                                                 />
                                                 Dhaka, Bangladesh • Nationwide Impact
                                           </p>
+
                                           <a
                                                 href="mailto:hello@somaj.com"
                                                 className="inline-flex items-center gap-2 transition-colors hover:text-[#3b5426] dark:hover:text-[#a8cf35]"
@@ -92,7 +96,9 @@ const Footer = () => {
                               {/* Explore */}
                               <div>
                                     <h3 className={HEADING}>Explore Platform</h3>
+
                                     <span className="mt-2 block h-0.5 w-8 rounded-full bg-gradient-to-r from-[#5f7a1a] to-[#a8cf35]" />
+
                                     <ul className="mt-5 space-y-3">
                                           {EXPLORE_LINKS.map(({ label, href, icon: Icon }) => (
                                                 <li key={label}>
@@ -114,7 +120,9 @@ const Footer = () => {
                               {/* Causes */}
                               <div>
                                     <h3 className={HEADING}>Active Causes</h3>
+
                                     <span className="mt-2 block h-0.5 w-8 rounded-full bg-gradient-to-r from-[#5f7a1a] to-[#a8cf35]" />
+
                                     <ul className="mt-5 space-y-3">
                                           {CAUSES.map(({ label, dot }) => (
                                                 <li
@@ -133,7 +141,9 @@ const Footer = () => {
                               {/* Community */}
                               <div>
                                     <h3 className={HEADING}>Community Spirit</h3>
+
                                     <span className="mt-2 block h-0.5 w-8 rounded-full bg-gradient-to-r from-[#5f7a1a] to-[#a8cf35]" />
+
                                     <p className="mt-5 text-sm leading-7 text-[#4b5d44] dark:text-[#9fb2a6]">
                                           Connect with passionate volunteers, discover meaningful community
                                           initiatives, and work together to create a positive change where

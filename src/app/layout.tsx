@@ -38,7 +38,7 @@ export default function RootLayout({
           disableTransitionOnChange={false}
         >
           <Toaster
-            position="top-right"
+            position="top-center"
             richColors
             closeButton
             duration={5000}

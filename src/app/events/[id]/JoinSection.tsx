@@ -1,14 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { Check, HeartHandshake, Loader2, Users } from "lucide-react";
 import ShareButton from "./ShareButton";
 import { joinEvent, useEventVolunteers } from "@/lib/joinedStorage";
-
-// Login ready hole eta true kore dio
-const REQUIRE_LOGIN = false;
 
 type Props = {
           eventId: string;
@@ -33,9 +29,7 @@ const JoinSection = ({
           baseCount,
           baseEmails,
           apiJoined,
-          isLoggedIn,
 }: Props) => {
-          const router = useRouter();
           const [loading, setLoading] = useState(false);
           const { joined, count } = useEventVolunteers(
                     eventId,
@@ -45,22 +39,12 @@ const JoinSection = ({
           );
 
           const handleJoin = async () => {
-                    if (loading) return;
-
-                    if (joined) {
-                              toast("You've already joined this drive. Thank you!", { icon: "🌿" });
-                              return;
-                    }
-
-                    if (REQUIRE_LOGIN && !isLoggedIn) {
-                              toast.error("Please log in to join this event.");
-                              router.push("/login");
-                              return;
-                    }
+                    if (loading || joined) return;
 
                     setLoading(true);
+
                     // Pore backend ready hole ekhane fetch POST boshabe
-                    await new Promise((r) => setTimeout(r, 600));
+                    await new Promise((r) => setTimeout(r, 500));
 
                     joinEvent({
                               id: eventId,
@@ -73,9 +57,7 @@ const JoinSection = ({
                     });
 
                     setLoading(false);
-                    toast.success(`You're in! Thanks for joining "${title}" 🎉`, {
-                              duration: 4500,
-                    });
+                    toast.success(`You joined "${title}" 🎉`);
           };
 
           return (
