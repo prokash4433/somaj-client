@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 
 const statistics = [
@@ -27,17 +28,21 @@ const statistics = [
 ];
 
 const Countdown = () => {
-          const { theme } = useTheme();
+          const { resolvedTheme } = useTheme();
+          const [mounted, setMounted] = useState(false);
 
-          const isDark = theme === "dark";
+          useEffect(() => {
+                    setMounted(true);
+          }, []);
+
+          // Keep the server render and initial client render consistent.
+          const isDark = mounted && resolvedTheme === "dark";
 
           return (
-                    <section className="relative w-full px-3 pb-10 mt-10 pt-2 sm:px-5">
+                    <section className="relative mt-10 w-full px-3 pb-10 pt-2 sm:px-5">
                               <div className="mx-auto max-w-[900px]">
-
                                         {/* Statistics Panel */}
                                         <div className="grid grid-cols-1 gap-3 rounded-2xl p-3 sm:grid-cols-2 md:gap-4 md:p-4 lg:grid-cols-4">
-
                                                   {statistics.map((stat) => (
                                                             <div
                                                                       key={stat.label}
@@ -62,7 +67,6 @@ const Countdown = () => {
                                                                       </p>
                                                             </div>
                                                   ))}
-
                                         </div>
                               </div>
                     </section>
