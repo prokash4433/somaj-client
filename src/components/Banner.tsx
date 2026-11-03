@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,7 +21,7 @@ const Banner = () => {
                     <section
                               className={`relative mt-10 flex min-h-[365px] w-full items-center justify-center overflow-hidden border-t px-5 py-16 text-center transition-colors duration-300 ${isDark
                                                   ? "border-[#26372b] bg-gradient-to-r from-[#050805] via-[#111d0e] to-[#263820]"
-                                                  : "border-[#d5eae1] bg-gradient-to-r from-[#f0faf6] via-[#e4f5ed] to-[#d5eee3]"
+                                                  : "border-[#829f20]/30 bg-gradient-to-br from-[#f8fbef] via-[#eef5d9] to-[#dbe9b8]"
                                         }`}
                     >
                               {/* Background Glow */}
@@ -30,25 +29,25 @@ const Banner = () => {
                                         aria-hidden="true"
                                         className={`pointer-events-none absolute inset-0 ${isDark
                                                             ? "bg-[radial-gradient(ellipse_at_center,rgba(111,148,45,0.10),transparent_65%)]"
-                                                            : "bg-[radial-gradient(ellipse_at_center,rgba(20,184,135,0.10),transparent_65%)]"
+                                                            : "bg-[radial-gradient(ellipse_at_center,rgba(130,159,32,0.18),transparent_65%)]"
                                                   }`}
                               />
 
                               <div className="relative z-10 mx-auto max-w-4xl">
                                         {/* Heading */}
                                         <h1
-                                                  className={`text-3xl font-bold leading-tight tracking-tight transition-colors duration-300 sm:text-4xl md:text-5xl ${isDark ? "text-white" : "text-[#142b23]"
+                                                  className={`text-3xl font-bold leading-tight tracking-tight transition-colors duration-300 sm:text-4xl md:text-5xl ${isDark ? "text-white" : "text-[#1f3314]"
                                                             }`}
                                         >
                                                   Together,{" "}
-                                                  <span className={isDark ? "text-[#c2f800]" : "text-[#426b32]"}>
+                                                  <span className={isDark ? "text-[#c2f800]" : "text-[#4d6b17]"}>
                                                             we build a better society.
                                                   </span>
                                         </h1>
 
                                         {/* Description */}
                                         <p
-                                                  className={`mx-auto mt-6 max-w-[510px] text-sm leading-relaxed transition-colors duration-300 sm:text-base ${isDark ? "text-gray-200" : "text-[#536b60]"
+                                                  className={`mx-auto mt-6 max-w-[510px] text-sm leading-relaxed transition-colors duration-300 sm:text-base ${isDark ? "text-gray-200" : "text-[#4b5d44]"
                                                             }`}
                                         >
                                                   Somaj connects volunteers with local social service events — from
