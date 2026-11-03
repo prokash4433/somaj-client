@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -103,9 +102,9 @@ const Navbar = () => {
                       setOpen((prev) => !prev);
                     }
                   }}
-                  className="group flex cursor-pointer items-center gap-1.5 rounded-full outline-none transition-all duration-300 active:scale-95"
+                  className="group flex cursor-pointer items-center gap-1 rounded-full outline-none transition-all duration-300 active:scale-95 sm:gap-1.5"
                 >
-                  <Avatar className="h-9 w-9 border-2 border-[#829f20] shadow-[0_0_12px_rgba(194,248,0,0.2)] transition-all duration-300 group-hover:shadow-[0_0_16px_rgba(194,248,0,0.35)]">
+                  <Avatar className="h-8 w-8 border-2 border-[#829f20] shadow-[0_0_12px_rgba(194,248,0,0.2)] transition-all duration-300 group-hover:shadow-[0_0_16px_rgba(194,248,0,0.35)] sm:h-9 sm:w-9">
                     <AvatarImage
                       referrerPolicy="no-referrer"
                       src={user?.image as string}
@@ -117,7 +116,7 @@ const Navbar = () => {
                     </AvatarFallback>
                   </Avatar>
 
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#dce5d8] bg-[#edf2e9] text-[#536d13] dark:border-[#304638] dark:bg-[#101e18] dark:text-[#829f20]">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg border border-[#dce5d8] bg-[#edf2e9] text-[#536d13] dark:border-[#304638] dark:bg-[#101e18] dark:text-[#829f20] sm:h-7 sm:w-7">
                     <ChevronDown
                       size={15}
                       className={`transition-transform duration-300 ${open ? "rotate-180" : ""
@@ -130,10 +129,10 @@ const Navbar = () => {
               <PopoverContent
                 align="end"
                 sideOffset={12}
-                className="w-64 rounded-2xl border border-[#dce5d8] bg-white p-2 shadow-xl backdrop-blur-md dark:border-[#26372b] dark:bg-[#14251e] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
+                className="max-h-[calc(100dvh-5rem)] w-[calc(100vw-1.5rem)] max-w-[16rem] overflow-y-auto rounded-2xl border border-[#dce5d8] bg-white p-1.5 shadow-xl backdrop-blur-md dark:border-[#26372b] dark:bg-[#14251e] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] sm:w-64 sm:max-w-none sm:p-2 md:w-72"
               >
                 {/* User Info */}
-                <div className="mb-2 rounded-xl border border-[#dce5d8] bg-[#edf2e9] px-3.5 py-3 dark:border-[#26372b] dark:bg-[#0e1a14]">
+                <div className="mb-2 rounded-xl border border-[#dce5d8] bg-[#edf2e9] px-3 py-2.5 dark:border-[#26372b] dark:bg-[#0e1a14] sm:px-3.5 sm:py-3">
                   <p className="truncate text-sm font-bold text-[#1f2a1b] dark:text-white">
                     {user?.name}
                   </p>
@@ -150,13 +149,13 @@ const Navbar = () => {
                       key={href}
                       href={href}
                       onClick={() => setOpen(false)}
-                      className="group/item flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-semibold text-[#1f2a1b] transition-all duration-200 hover:bg-[#edf2e9] dark:text-[#e4ece6] dark:hover:bg-[#1d3228]"
+                      className="group/item flex min-h-[44px] items-center gap-3 rounded-xl px-2 py-1.5 text-[13px] font-semibold text-[#1f2a1b] transition-all duration-200 hover:bg-[#edf2e9] dark:text-[#e4ece6] dark:hover:bg-[#1d3228] sm:px-2.5 sm:text-sm"
                     >
-                      <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#dce5d8] bg-white text-[#536d13] transition-all duration-200 group-hover/item:border-[#829f20] group-hover/item:text-[#829f20] dark:border-[#304638] dark:bg-[#101e18] dark:text-[#829f20]">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#dce5d8] bg-white text-[#536d13] transition-all duration-200 group-hover/item:border-[#829f20] group-hover/item:text-[#829f20] dark:border-[#304638] dark:bg-[#101e18] dark:text-[#829f20]">
                         <Icon size={16} />
                       </span>
 
-                      {label}
+                      <span className="truncate">{label}</span>
                     </Link>
                   ))}
                 </div>
@@ -168,9 +167,9 @@ const Navbar = () => {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="group/logout flex w-full cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-bold text-red-600 transition-all duration-200 hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-500/10"
+                  className="group/logout flex min-h-[44px] w-full cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 text-[13px] font-bold text-red-600 transition-all duration-200 hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-500/10 sm:px-2.5 sm:text-sm"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition-all duration-200 group-hover/logout:border-red-400 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-500">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition-all duration-200 group-hover/logout:border-red-400 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-500">
                     <LogOut size={16} />
                   </span>
 
