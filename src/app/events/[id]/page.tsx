@@ -5,17 +5,16 @@ import {
           BadgeCheck,
           CalendarDays,
           Check,
-          HeartHandshake,
           Lock,
           Mail,
           MapPin,
           SearchX,
           Tag,
-          Users,
 } from "lucide-react";
-import ShareButton from "./ShareButton";
+import JoinSection from "./JoinSection";
+import VolunteersCard from "./VolunteersCard";
 
- 
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
 
 // ---- Builds relevant volunteer guidelines from the event's own data ----
 const buildGuidelines = (opts: {
@@ -124,12 +123,20 @@ const buildGuidelines = (opts: {
           ];
 };
 
-const EventDetailsPage = async ({ params }) => {
+const EventDetailsPage = async ({
+          params,
+}: {
+          params: Promise<{ id: string }>;
+}) => {
           const { id } = await params;
 
-          const res = await fetch(`http://localhost:5000/event/${id}`, { cache: "no-store" });
-          const data = await res.json();
-          console.log(data);
+          let data: any = null;
+          try {
+                    const res = await fetch(`${API}/event/${id}`, { cache: "no-store" });
+                    data = await res.json();
+          } catch {
+                    data = null;
+          }
 
           // ---- Login check (cookie based) ----
           const cookieStore = await cookies();
@@ -147,32 +154,30 @@ const EventDetailsPage = async ({ params }) => {
           // Event not found / API error
           if (!event || !title) {
                     return (
-                              <div>
-                                        <div className="mx-auto mt-[3.75rem] w-full max-w-2xl px-4 py-8 sm:px-6">
-                                                  <Link
-                                                            href="/events"
-                                                            className="group mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-900/15 bg-white px-3.5 py-2 text-sm font-medium text-emerald-900 transition-colors hover:text-emerald-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-emerald-100/70 dark:hover:text-emerald-300"
-                                                  >
-                                                            <ArrowLeft
-                                                                      size={16}
-                                                                      strokeWidth={2}
-                                                                      className="transition-transform group-hover:-translate-x-0.5"
-                                                            />
-                                                            Back to Upcoming Events
-                                                  </Link>
-                                                  <div className="flex flex-col items-center rounded-[28px] border border-emerald-900/10 bg-white px-6 py-16 text-center dark:border-white/10 dark:bg-[#16221d]">
-                                                            <SearchX
-                                                                      size={40}
-                                                                      strokeWidth={1.5}
-                                                                      className="text-emerald-700 dark:text-emerald-300"
-                                                            />
-                                                            <h1 className="mt-4 text-xl font-bold text-[#10261b] dark:text-white">
-                                                                      Event not found
-                                                            </h1>
-                                                            <p className="mt-1 text-sm text-emerald-900/60 dark:text-emerald-100/55">
-                                                                      This event may have been removed or the link is incorrect.
-                                                            </p>
-                                                  </div>
+                              <div className="mx-auto mt-[3.75rem] w-full max-w-2xl px-4 py-8 sm:px-6">
+                                        <Link
+                                                  href="/events"
+                                                  className="group mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-900/15 bg-white px-3.5 py-2 text-sm font-medium text-emerald-900 transition-colors hover:text-emerald-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-emerald-100/70 dark:hover:text-emerald-300"
+                                        >
+                                                  <ArrowLeft
+                                                            size={16}
+                                                            strokeWidth={2}
+                                                            className="transition-transform group-hover:-translate-x-0.5"
+                                                  />
+                                                  Back to Upcoming Events
+                                        </Link>
+                                        <div className="flex flex-col items-center rounded-[28px] border border-emerald-900/10 bg-white px-6 py-16 text-center dark:border-white/10 dark:bg-[#16221d]">
+                                                  <SearchX
+                                                            size={40}
+                                                            strokeWidth={1.5}
+                                                            className="text-emerald-700 dark:text-emerald-300"
+                                                  />
+                                                  <h1 className="mt-4 text-xl font-bold text-[#10261b] dark:text-white">
+                                                            Event not found
+                                                  </h1>
+                                                  <p className="mt-1 text-sm text-emerald-900/60 dark:text-emerald-100/55">
+                                                            This event may have been removed or the link is incorrect.
+                                                  </p>
                                         </div>
                               </div>
                     );
@@ -189,20 +194,20 @@ const EventDetailsPage = async ({ params }) => {
           // Image
           const imgField = Array.isArray(event?.image ?? event?.images)
                     ? (event?.image ?? event?.images)[0]
-                    : event?.image ??
-                    event?.imageUrl ??
-                    event?.img ??
-                    event?.photo ??
-                    event?.thumbnail ??
-                    event?.banner ??
-                    event?.coverImage ??
-                    event?.cover;
+                    : (event?.image ??
+                              event?.imageUrl ??
+                              event?.img ??
+                              event?.photo ??
+                              event?.thumbnail ??
+                              event?.banner ??
+                              event?.coverImage ??
+                              event?.cover);
           const imgStr: string | undefined =
                     typeof imgField === "string" ? imgField : imgField?.url;
           const image = imgStr
                     ? /^(https?:)?\/\//.test(imgStr) || imgStr.startsWith("data:")
                               ? imgStr
-                              : `${data}/${imgStr.replace(/^\/+/, "")}`
+                              : `${API}/${imgStr.replace(/^\/+/, "")}`
                     : null;
 
           // Date
@@ -221,14 +226,14 @@ const EventDetailsPage = async ({ params }) => {
                               : String(rawDate);
           }
 
-          // Volunteers
+          // Volunteers (API theke jetuku ache)
           const volunteerSource =
                     event?.volunteers ??
                     event?.joinedVolunteers ??
                     event?.joinedUsers ??
                     event?.participants ??
                     event?.attendees;
-          const volunteerCount: number = Array.isArray(volunteerSource)
+          const baseCount: number = Array.isArray(volunteerSource)
                     ? volunteerSource.length
                     : Number(
                               event?.volunteerCount ??
@@ -237,11 +242,16 @@ const EventDetailsPage = async ({ params }) => {
                               volunteerSource ??
                               0
                     ) || 0;
-          const isJoined = Boolean(event?.isJoined ?? event?.joined ?? event?.hasJoined);
-
-          // Join link (change this path if your join page is different)
-          const joinHref: string =
-                    event?.joinLink ?? event?.link ?? `/events/${id}/join`;
+          const baseEmails: string[] = Array.isArray(volunteerSource)
+                    ? volunteerSource
+                              .map((v: any) =>
+                                        typeof v === "string" ? v : (v?.email ?? v?.userEmail ?? v?.user?.email)
+                              )
+                              .filter(
+                                        (e: unknown): e is string => typeof e === "string" && e.includes("@")
+                              )
+                    : [];
+          const apiJoined = Boolean(event?.isJoined ?? event?.joined ?? event?.hasJoined);
 
           // Organizer
           const orgRaw =
@@ -271,166 +281,154 @@ const EventDetailsPage = async ({ params }) => {
                               : typeof guidelinesRaw === "string" && guidelinesRaw.trim()
                                         ? guidelinesRaw.split("\n").filter(Boolean)
                                         : buildGuidelines({
-                                        category,
-                                        title,
-                                        description,
-                                        location,
-                                        date: dateLabel,
+                                                  category,
+                                                  title,
+                                                  description,
+                                                  location,
+                                                  date: dateLabel,
                                         });
 
           return (
-                    <div>
-          <div className="mx-auto mt-[3.75rem] w-full max-w-2xl px-4 py-8 sm:px-6">
-                    {/* Back button */}
-          <Link
-          href="/events"
-          className="group mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-900/15 bg-white px-3.5 py-2 text-sm font-medium dark:text-[#829f20] hover:border-[#829f20] duration-300 ease-in-out hover:scale-105  shadow-sm transition-colors  focus-visible:outline-none focus-visible:ring-2  dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none  "
-                                        >
-          <ArrowLeft
-          size={16}
-          strokeWidth={2}
-          className="transition-transform group-hover:-translate-x-0.5"
-          />
-          Back to Upcoming Events
-          </Link>
+                    <div className="mx-auto mt-[3.75rem] w-full max-w-2xl px-4 py-8 sm:px-6">
+                              {/* Back button */}
+                              <Link
+                                        href="/events"
+                                        className="group mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-900/15 bg-white px-3.5 py-2 text-sm font-medium shadow-sm transition-all duration-300 ease-in-out hover:scale-105 hover:border-[#829f20] focus-visible:outline-none focus-visible:ring-2 dark:border-white/10 dark:bg-white/[0.04] dark:text-[#829f20] dark:shadow-none"
+                              >
+                                        <ArrowLeft
+                                                  size={16}
+                                                  strokeWidth={2}
+                                                  className="transition-transform group-hover:-translate-x-0.5"
+                                        />
+                                        Back to Upcoming Events
+                              </Link>
 
-          <article className="overflow-hidden rounded-[28px] border border-emerald-900/10 bg-white shadow-[0_20px_50px_-24px_rgba(16,60,40,0.35)] dark:border-white/10 dark:bg-[#16221d] dark:shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)]">
-                    
-                    
-                    {/* ---------- Hero ---------- */}
-          <header className="relative isolate flex min-h-[260px] flex-col justify-end overflow-hidden px-5 pb-6 pt-5 sm:min-h-[300px] sm:px-7">
-          {image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-          src={image}
-          alt={title}
-          className="absolute inset-0 -z-30 h-full w-full object-cover"
-          />
-          ) : (<>
-           <div
-          aria-hidden
-          className="absolute inset-0 -z-30 bg-gradient-to-b from-[#f0a03c] via-[#e8803f] to-[#4a2a16]"
-          />
-          <div
-          aria-hidden
-          className="absolute left-1/2 top-[36%] -z-20 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/25 blur-3xl"
-          />
-          <div
-          aria-hidden
-          className="absolute left-1/2 top-[36%] -z-10 -translate-x-1/2 -translate-y-1/2 text-[76px] leading-none drop-shadow-[0_10px_20px_rgba(0,0,0,0.25)] sm:text-[88px]"
-          >
-          {emoji}
-          </div>
-          </>
-          )}
+                              <article className="overflow-hidden rounded-[28px] border border-emerald-900/10 bg-white shadow-[0_20px_50px_-24px_rgba(16,60,40,0.35)] dark:border-white/10 dark:bg-[#16221d] dark:shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)]">
+                                        {/* ---------- Hero ---------- */}
+                                        <header className="relative isolate flex min-h-[260px] flex-col justify-end overflow-hidden px-5 pb-6 pt-5 sm:min-h-[300px] sm:px-7">
+                                                  {image ? (
+                                                            // eslint-disable-next-line @next/next/no-img-element
+                                                            <img
+                                                                      src={image}
+                                                                      alt={title}
+                                                                      className="absolute inset-0 -z-30 h-full w-full object-cover"
+                                                            />
+                                                  ) : (
+                                                            <>
+                                                                      <div
+                                                                                aria-hidden
+                                                                                className="absolute inset-0 -z-30 bg-gradient-to-b from-[#f0a03c] via-[#e8803f] to-[#4a2a16]"
+                                                                      />
+                                                                      <div
+                                                                                aria-hidden
+                                                                                className="absolute left-1/2 top-[36%] -z-20 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/25 blur-3xl"
+                                                                      />
+                                                                      <div
+                                                                                aria-hidden
+                                                                                className="absolute left-1/2 top-[36%] -z-10 -translate-x-1/2 -translate-y-1/2 text-[76px] leading-none drop-shadow-[0_10px_20px_rgba(0,0,0,0.25)] sm:text-[88px]"
+                                                                      >
+                                                                                {emoji}
+                                                                      </div>
+                                                            </>
+                                                  )}
 
-                              {/* readability overlay */}
-          <div
-          aria-hidden
-          className="absolute inset-0 -z-10 bg-gradient-to-t from-black/70 via-black/15 to-transparent"/>
-          {category && (
-          <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-[#14301f] shadow-sm backdrop-blur sm:left-6 sm:top-5">
-          <Tag size={13} strokeWidth={2} />
-          {category}
-          </span>
-          )}
+                                                  {/* readability overlay */}
+                                                  <div
+                                                            aria-hidden
+                                                            className="absolute inset-0 -z-10 bg-gradient-to-t from-black/70 via-black/15 to-transparent"
+                                                  />
 
-          <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)] sm:text-4xl">
-          {title}</h1>
+                                                  {category && (
+                                                            <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-[#14301f] shadow-sm backdrop-blur sm:left-6 sm:top-5">
+                                                                      <Tag size={13} strokeWidth={2} />
+                                                                      {category}
+                                                            </span>
+                                                  )}
 
-          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-semibold text-white">
-          {location && (
-          <span className="inline-flex items-center gap-2 rounded-full bg-black/30 px-3 py-1.5 backdrop-blur-sm">
-          <MapPin size={15} strokeWidth={2} className="text-[#829f20]" />
-           {location}
-          </span>
-          )}
-          {dateLabel && (
-          <span className="inline-flex items-center gap-2 rounded-full bg-black/30 px-3 py-1.5 backdrop-blur-sm">
-          <CalendarDays
-          size={15}
-                                                                                                    strokeWidth={2}
-                                                                                                    className="text-[#829f20]"
-                    />
-          {dateLabel}
-          </span>
-          )}
-                                                            </div>
-                                                  </header>
+                                                  <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)] sm:text-4xl">
+                                                            {title}
+                                                  </h1>
 
-                              {/* ---------- Body ---------- */}
-          <div className="space-y-7 p-5 sm:p-6">
-                              {/* Volunteer bar */}
-          <section className="flex flex-col gap-4 rounded-2xl border border-emerald-900/10 bg-emerald-50/70 p-4 dark:border-white/10 dark:bg-[#0e1713] sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#829f20]/30 bg-[#829f20]/15 text-[#829f20]">
-          <Users size={22} strokeWidth={1.75} />
-                    </div>
-                    <div>
-           <p className="text-[15px] font-semibold text-[#10261b] dark:text-white">
-                                                                                                    {volunteerCount} Volunteers Joined
-           </p>
-          <p className="text-sm text-emerald-900/60 dark:text-emerald-100/55">
-                                                                                                    Sign up to join hands for this drive
-                    </p>
-                    </div>
-                     </div>
+                                                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-semibold text-white">
+                                                            {location && (
+                                                                      <span className="inline-flex items-center gap-2 rounded-full bg-black/30 px-3 py-1.5 backdrop-blur-sm">
+                                                                                <MapPin size={15} strokeWidth={2} className="text-[#829f20]" />
+                                                                                {location}
+                                                                      </span>
+                                                            )}
+                                                            {dateLabel && (
+                                                                      <span className="inline-flex items-center gap-2 rounded-full bg-black/30 px-3 py-1.5 backdrop-blur-sm">
+                                                                                <CalendarDays
+                                                                                          size={15}
+                                                                                          strokeWidth={2}
+                                                                                          className="text-[#829f20]"
+                                                                                />
+                                                                                {dateLabel}
+                                                                      </span>
+                                                            )}
+                                                  </div>
+                                        </header>
 
-                    <div className="flex items-center gap-3">
-          <ShareButton />
-          <Link
-          href={joinHref}
-          className="inline-flex h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border border-lime-800/20 bg-gradient-to-br from-lime-100 to-lime-200 px-6 text-sm font-semibold text-lime-900 transition-all hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-500/50 dark:border-lime-200/15 dark:from-[#2b3a1a] dark:to-[#1d2a14] dark:text-lime-100/90 dark:shadow-inner dark:shadow-white/5 dark:hover:brightness-110 sm:flex-none"
-          >
-          <HeartHandshake size={17} strokeWidth={1.75} />
-          {isJoined ? "Joined" : "Join Event"}
-          {isJoined && <Check size={16} strokeWidth={2.5} />}
-          </Link>
-          </div>
-          </section>
+                                        {/* ---------- Body ---------- */}
+                                        <div className="space-y-7 p-5 sm:p-6">
+                                                  {/* Volunteer bar + Join button (client component) */}
+                                                  <JoinSection
+                                                            eventId={id}
+                                                            title={title}
+                                                            category={category}
+                                                            date={rawDate ? String(rawDate) : ""}
+                                                            location={location}
+                                                            image={image}
+                                                            baseCount={baseCount}
+                                                            baseEmails={baseEmails}
+                                                            apiJoined={apiJoined}
+                                                            isLoggedIn={isLoggedIn}
+                                                  />
 
-                                        {/* About + Organizer */}
-          <div className="grid gap-6 md:grid-cols-[1fr_14rem]">
-          <section>
-          <h2 className="text-xl font-bold tracking-tight text-[#10261b] dark:text-white">
-          About this Social Initiative
-          </h2>
-          {description && (
-          <p className="mt-3 text-[15px] leading-7 text-[#2b4338] dark:text-white/85">
-                                                                                                    {description}
-          </p>
-          )}
+                                                  {/* About + Organizer */}
+                                                  <div className="grid gap-6 md:grid-cols-[1fr_14rem]">
+                                                            <section>
+                                                                      <h2 className="text-xl font-bold tracking-tight text-[#10261b] dark:text-white">
+                                                                                About this Social Initiative
+                                                                      </h2>
+                                                                      {description && (
+                                                                                <p className="mt-3 text-[15px] leading-7 text-[#2b4338] dark:text-white/85">
+                                                                                          {description}
+                                                                                </p>
+                                                                      )}
 
-          <div className="mt-6 border-t border-emerald-900/10 pt-5 dark:border-white/10">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-emerald-900/60 dark:text-emerald-100/55">
-                                                                                                    Volunteer Guidelines
-          </h3>
-                    <ul className="mt-4 space-y-3.5">
-                                                                                                    {guidelines.map((item, i) => (
-                                                                                                              <li
-                                                                                                                        key={i}
-                                                                                                                        className="flex items-start gap-3 text-sm leading-6 text-emerald-950/75 dark:text-emerald-100/70"
-                                                                                                              >
-                                                                                                                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#829f20]/15 text-[#829f20]">
-                                                                                                                                  <Check size={12} strokeWidth={3} />
-                                                                                                                        </span>
-                                                                                                                        {item}
-                                                                                                              </li>
-                                                                                                    ))}
-          </ul>
-                    </div>
-          </section>
+                                                                      <div className="mt-6 border-t border-emerald-900/10 pt-5 dark:border-white/10">
+                                                                                <h3 className="text-xs font-semibold uppercase tracking-wider text-emerald-900/60 dark:text-emerald-100/55">
+                                                                                          Volunteer Guidelines
+                                                                                </h3>
+                                                                                <ul className="mt-4 space-y-3.5">
+                                                                                          {guidelines.map((item, i) => (
+                                                                                                    <li
+                                                                                                              key={i}
+                                                                                                              className="flex items-start gap-3 text-sm leading-6 text-emerald-950/75 dark:text-emerald-100/70"
+                                                                                                    >
+                                                                                                              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#829f20]/15 text-[#829f20]">
+                                                                                                                        <Check size={12} strokeWidth={3} />
+                                                                                                              </span>
+                                                                                                              {item}
+                                                                                                    </li>
+                                                                                          ))}
+                                                                                </ul>
+                                                                      </div>
+                                                            </section>
 
-         <aside className="group h-fit rounded-2xl border border-emerald-900/10 bg-emerald-50/70 p-5 transition-all duration-300 hover:scale-[1.03] hover:border-[#829f20] dark:border-white/10 dark:bg-[#0e1713] dark:hover:border-[#829f20]">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-emerald-900/60 dark:text-emerald-100/55">
-          Initiative Organizer
-          </h3>
+                                                            {/* Right column: organizer + joined volunteers */}
+                                                            <div className="h-fit space-y-4">
+                                                                      <aside className="group h-fit rounded-2xl border border-emerald-900/10 bg-emerald-50/70 p-5 transition-all duration-300 hover:scale-[1.03] hover:border-[#829f20] dark:border-white/10 dark:bg-[#0e1713] dark:hover:border-[#829f20]">
+                                                                                <h3 className="text-xs font-semibold uppercase tracking-wider text-emerald-900/60 dark:text-emerald-100/55">
+                                                                                          Initiative Organizer
+                                                                                </h3>
 
-          <div className="mt-4 flex items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3a4d1f] to-[#1d2a14] text-lg font-bold text-white ring-2 ring-lime-700/15 transition-all duration-300 group-hover:ring-[#829f20] dark:ring-lime-200/10 dark:group-hover:ring-[#829f20]">
+                                                                                <div className="mt-4 flex items-center gap-3">
+                                                                                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3a4d1f] to-[#1d2a14] text-lg font-bold text-white ring-2 ring-lime-700/15 transition-all duration-300 group-hover:ring-[#829f20] dark:ring-lime-200/10 dark:group-hover:ring-[#829f20]">
                                                                                                     {organizerName.charAt(0).toUpperCase()}
-          </div>
-          <div className="min-w-0">
+                                                                                          </div>
+                                                                                          <div className="min-w-0">
                                                                                                     <p className="truncate text-[15px] font-semibold text-[#10261b] dark:text-white">
                                                                                                               {organizerName}
                                                                                                     </p>
@@ -451,10 +449,10 @@ const EventDetailsPage = async ({ params }) => {
                                                                                                                         Login to view contact
                                                                                                               </Link>
                                                                                                     )}
-                     </div>
-          </div>
+                                                                                          </div>
+                                                                                </div>
 
-           <div className="mt-5 flex items-center gap-2 border-t border-emerald-900/10 pt-4 text-xs text-emerald-900/65 dark:border-white/10 dark:text-emerald-100/60">
+                                                                                <div className="mt-5 flex items-center gap-2 border-t border-emerald-900/10 pt-4 text-xs text-emerald-900/65 dark:border-white/10 dark:text-emerald-100/60">
                                                                                           <BadgeCheck
                                                                                                     size={16}
                                                                                                     strokeWidth={1.75}
@@ -463,10 +461,18 @@ const EventDetailsPage = async ({ params }) => {
                                                                                           Verified Platform Member
                                                                                 </div>
                                                                       </aside>
+
+                                                                      <VolunteersCard
+                                                                                eventId={id}
+                                                                                baseCount={baseCount}
+                                                                                baseEmails={baseEmails}
+                                                                                apiJoined={apiJoined}
+                                                                                isLoggedIn={isLoggedIn}
+                                                                      />
                                                             </div>
                                                   </div>
-                                        </article>
-                              </div>
+                                        </div>
+                              </article>
                     </div>
           );
 };

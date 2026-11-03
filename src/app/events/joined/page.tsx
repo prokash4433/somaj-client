@@ -1,50 +1,56 @@
+"use client";
+
+import Link from "next/link";
+import toast from "react-hot-toast";
 import {
           ArrowRight,
           ArrowUpRight,
           CalendarDays,
           CheckCircle2,
           Handshake,
+          LogOut,
           MapPin,
           PlusCircle,
           Tag,
           Users,
 } from "lucide-react";
-import Link from "next/link";
+import { leaveEvent, useJoinedEvents } from "@/lib/joinedStorage";
 
-type JoinedEvent = {
-          id: string;
-          title: string;
-          category: string;
-          date: string; // ISO string
-          location: string;
-          volunteers: number;
+const EventsRoute = "/events";
+
+const formatDate = (iso: string) => {
+          const d = new Date(iso);
+          return isNaN(d.getTime())
+                    ? "Date to be announced"
+                    : d.toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                    });
 };
 
-// TODO: real data diye replace koro. Empty array hole empty state dekhabe
-const joinedEvents: JoinedEvent[] = [];
+const JoinedEventPage = () => {
+          const { events, ready } = useJoinedEvents();
 
-const EventsRoute = "/events"; // tomar events page er route ekhane bosao
-
-const formatDate = (iso: string) =>
-          new Date(iso).toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
+          const sorted = [...events].sort((a, b) => {
+                    const ta = new Date(a.date).getTime();
+                    const tb = new Date(b.date).getTime();
+                    if (isNaN(ta)) return 1;
+                    if (isNaN(tb)) return -1;
+                    return ta - tb;
           });
 
-const JoinedEventPage = () => {
-          const sorted = [...joinedEvents].sort(
-                    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-          );
+          const handleLeave = (id: string, title: string) => {
+                    leaveEvent(id);
+                    toast(`You left "${title}".`, { icon: "👋" });
+          };
 
           return (
                     <section className="relative mt-15 min-h-screen overflow-hidden px-4 py-12 text-foreground transition-colors duration-300 sm:px-8">
-                              {/* Soft background glows */}
                               <div className="pointer-events-none absolute -top-40 left-1/2 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-[#829f20]/15 blur-[120px] dark:bg-[#829f20]/10" />
                               <div className="pointer-events-none absolute -bottom-40 -right-24 h-80 w-80 rounded-full bg-[#3b5426]/10 blur-3xl dark:bg-[#3b5426]/20" />
 
                               <div className="relative mx-auto max-w-6xl">
-                                        {/* Header */}
                                         <header className="border-b border-[#829f20]/30 pb-8 dark:border-[#526b24]/30">
                                                   <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                                                             <div>
@@ -66,7 +72,6 @@ const JoinedEventPage = () => {
                                                                       </p>
                                                             </div>
 
-                                                            {/* Count chip */}
                                                             <div className="flex w-fit items-center gap-3 rounded-2xl border border-[#829f20]/40 bg-gradient-to-br from-[#f8fbef] to-[#e4efc9] px-5 py-3 shadow-sm dark:border-[#526b24]/40 dark:from-[#14221b] dark:to-[#1d2a14]">
                                                                       <Handshake className="h-6 w-6 text-[#5f7a1a] dark:text-[#a8cf35]" />
                                                                       <div>
@@ -81,52 +86,87 @@ const JoinedEventPage = () => {
                                                   </div>
                                         </header>
 
-                                        {sorted.length === 0 ? (
+                                        {!ready ? (
+                                                  <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                                                            {[0, 1, 2].map((i) => (
+                                                                      <li
+                                                                                key={i}
+                                                                                className="h-80 animate-pulse rounded-2xl border border-[#829f20]/20 bg-[#829f20]/5"
+                                                                      />
+                                                            ))}
+                                                  </ul>
+                                        ) : sorted.length === 0 ? (
                                                   <EmptyState />
                                         ) : (
                                                   <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                                                             {sorted.map((event) => (
                                                                       <li
-                                                                                key={event.id}
-                                                                                className="group relative flex flex-col overflow-hidden rounded-2xl border border-[#829f20]/25 bg-white/70 p-6 shadow-sm backdrop-blur transition-all duration-300 hover:-translate-y-1.5 hover:border-[#829f20]/60 hover:shadow-[0_18px_40px_-18px_rgba(82,107,36,0.45)] dark:border-white/10 dark:bg-[#15211b]/70 dark:hover:border-[#829f20]/50 dark:hover:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)]"
-                                                                      >
-                                                                                {/* Top accent line */}
-                                                                                <div className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-[#3b5426] via-[#829f20] to-[#c5e77b] transition-transform duration-500 group-hover:scale-x-100" />
+                    key={event.id}
+                    className="group relative flex flex-col overflow-hidden rounded-2xl border border-[#829f20]/25 bg-white/70 shadow-sm backdrop-blur transition-all duration-300 hover:-translate-y-1.5 hover:border-[#829f20]/60 hover:shadow-[0_18px_40px_-18px_rgba(82,107,36,0.45)] dark:border-white/10 dark:bg-[#15211b]/70 dark:hover:border-[#829f20]/50 dark:hover:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)]">
+                                        {/* Image / fallback */}
+                              <div className="relative h-40 overflow-hidden">
+                                                                                          {event.image ? (
+                                                                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                                                                    <img
+                                                                                                              src={event.image}
+                                                                                                              alt={event.title}
+                                                                                                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                                                                    />
+                                                                                          ) : (
+                                                                                                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#3b5426] via-[#6f8a22] to-[#c5e77b] text-5xl">
+                                                                                                              🤝
+                                                                                                    </div>
+                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
-                                                                                {/* Hover glow */}
-                                                                                <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#829f20]/0 blur-3xl transition-colors duration-500 group-hover:bg-[#829f20]/20" />
+                              <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-[#14301f] shadow-sm backdrop-blur">
+                                                                                                    <Tag className="h-3 w-3" />
+                                                                                                    {event.category}
+                              </span>
+                              <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#829f20] px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+                                                                                                    <CheckCircle2 className="h-3 w-3" />
+                                                                                                    Joined
+          </span>
+          </div>
 
-                                                                                <span className="relative inline-flex w-fit items-center gap-1.5 rounded-full border border-[#829f20]/40 bg-[#f4f8e6] px-3 py-1 text-xs font-bold text-[#4d6b17] dark:bg-[#14221b] dark:text-[#c5e77b]">
-                                                                                          <Tag className="h-3 w-3" />
-                                                                                          {event.category}
-                                                                                </span>
+          <div className="flex flex-1 flex-col p-5">
+          <h3 className="line-clamp-2 text-lg font-extrabold leading-snug text-[#1f3314] transition-colors duration-300 group-hover:text-[#5f7a1a] dark:text-white dark:group-hover:text-[#a8cf35]">
+           {event.title}</h3>
 
-                                                                                <h3 className="relative mt-4 line-clamp-2 text-lg font-extrabold leading-snug text-[#1f3314] transition-colors duration-300 group-hover:text-[#5f7a1a] dark:text-white dark:group-hover:text-[#a8cf35]">
-                                                                                          {event.title}
-                                                                                </h3>
+<div className="mt-4 space-y-2.5 text-sm text-[#4b5d44] dark:text-[#9fb2a6]">
+                                                                                                    <p className="flex items-center gap-2.5">
+                                                                                                              <CalendarDays className="h-4 w-4 shrink-0 text-[#5f7a1a] dark:text-[#a8cf35]" />
+                                                                                                              {formatDate(event.date)}
+                                                                                                    </p>
+                                                                                                    <p className="flex items-center gap-2.5">
+                                                                                                              <MapPin className="h-4 w-4 shrink-0 text-[#5f7a1a] dark:text-[#a8cf35]" />
+                                                                                                              <span className="line-clamp-1">{event.location}</span>
+                                                                                                    </p>
+                                                                                                    <p className="flex items-center gap-2.5">
+                                                                                                              <Users className="h-4 w-4 shrink-0 text-[#5f7a1a] dark:text-[#a8cf35]" />
+                                                                                                              {event.volunteers} volunteers joined
+                                                                                                    </p>
+                                                                                          </div>
 
-                                                                                <div className="relative mt-4 space-y-2.5 text-sm text-[#4b5d44] dark:text-[#9fb2a6]">
-                                                                                          <p className="flex items-center gap-2.5">
-                                                                                                    <CalendarDays className="h-4 w-4 shrink-0 text-[#5f7a1a] dark:text-[#a8cf35]" />
-                                                                                                    {formatDate(event.date)}
-                                                                                          </p>
-                                                                                          <p className="flex items-center gap-2.5">
-                                                                                                    <MapPin className="h-4 w-4 shrink-0 text-[#5f7a1a] dark:text-[#a8cf35]" />
-                                                                                                    <span className="line-clamp-1">{event.location}</span>
-                                                                                          </p>
-                                                                                          <p className="flex items-center gap-2.5">
-                                                                                                    <Users className="h-4 w-4 shrink-0 text-[#5f7a1a] dark:text-[#a8cf35]" />
-                                                                                                    {event.volunteers} volunteers joined
-                                                                                          </p>
+                                                                                          <div className="mt-6 flex items-center gap-2">
+                                                                                                    <Link
+                                                                                                              href={`/events/${event.id}`}
+                                                                                                              className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-[#526b24]/70 bg-gradient-to-br from-[#3b5426] to-[#6f8a22] px-4 text-sm font-bold text-white shadow-[0_8px_24px_-10px_rgba(90,120,30,0.6)] transition-all duration-300 hover:border-[#829f20] hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#829f20] active:scale-[0.98]"
+                                                                                                    >
+                                                                                                              View Event
+                                                                                                              <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                                                                                                    </Link>
+                                                                                                    <button
+                                                                                                              type="button"
+                                                                                                              onClick={() => handleLeave(event.id, event.title)}
+                                                                                                              aria-label={`Leave ${event.title}`}
+                                                                                                              title="Leave event"
+                                                                                                              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#829f20]/40 bg-white/60 text-[#4d6b17] transition-all duration-300 hover:border-red-400 hover:text-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:bg-white/5 dark:text-[#c5e77b]"
+                                                                                                    >
+                                                                                                              <LogOut className="h-4 w-4" />
+                                                                                                    </button>
+                                                                                          </div>
                                                                                 </div>
-
-                                                                                <Link
-                                                                                          href={`/events/${event.id}`}
-                                                                                          className="relative mt-6 inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#526b24]/70 bg-gradient-to-br from-[#3b5426] to-[#6f8a22] px-4 text-sm font-bold text-white shadow-[0_8px_24px_-10px_rgba(90,120,30,0.6)] transition-all duration-300 hover:border-[#829f20] hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#829f20] active:scale-[0.98]"
-                                                                                >
-                                                                                          View Event
-                                                                                          <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                                                                                </Link>
                                                                       </li>
                                                             ))}
                                                   </ul>
@@ -156,7 +196,7 @@ const EmptyState = () => (
                     <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3">
                               <Link
                                         href={EventsRoute}
-                                        className="group inline-flex items-center gap-2 rounded-xl border border-[#526b24]/70 bg-gradient-to-br from-[#3b5426] to-[#6f8a22] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_24px_-8px_rgba(90,120,30,0.55)] transition-all duration-300 hover:scale-105 hover:border-[#829f20] hover:shadow-[0_12px_32px_-6px_rgba(90,120,30,0.7)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#829f20] focus-visible:ring-offset-2 active:scale-95"
+                                        className="group inline-flex items-center gap-2 rounded-xl border border-[#526b24]/70 bg-gradient-to-br from-[#3b5426] to-[#6f8a22] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_24px_-8px_rgba(90,120,30,0.55)] transition-all duration-300 hover:scale-105 hover:border-[#829f20] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#829f20] focus-visible:ring-offset-2 active:scale-95"
                               >
                                         Explore Upcoming Events
                                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
