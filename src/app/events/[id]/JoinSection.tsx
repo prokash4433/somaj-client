@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { Check, HeartHandshake, Loader2, Users } from "lucide-react";
 import ShareButton from "./ShareButton";
@@ -29,7 +30,10 @@ const JoinSection = ({
           baseCount,
           baseEmails,
           apiJoined,
+          isLoggedIn,
 }: Props) => {
+          const router = useRouter();
+          const pathname = usePathname();
           const [loading, setLoading] = useState(false);
           const { joined, count } = useEventVolunteers(
                     eventId,
@@ -38,8 +42,21 @@ const JoinSection = ({
                     apiJoined
           );
 
+          // Logout obosthay "Joined" dekhabe na
+          const showJoined = joined && isLoggedIn;
+
           const handleJoin = async () => {
-                    if (loading || joined) return;
+                    if (loading) return;
+
+                    // 1) Age login check
+                    if (!isLoggedIn) {
+                              toast.info("Please log in to join this event");
+                              router.push(`/login?callbackURL=${encodeURIComponent(pathname)}`);
+                              return;
+                    }
+
+                    // 2) Login thakle, already joined hole kichu korbe na
+                    if (joined) return;
 
                     setLoading(true);
 
@@ -71,7 +88,7 @@ const JoinSection = ({
                                                             {count} {count === 1 ? "Volunteer" : "Volunteers"} Joined
                                                   </p>
                                                   <p className="text-sm text-emerald-900/60 dark:text-emerald-100/55">
-                                                            {joined
+                                                            {showJoined
                                                                       ? "You're part of this drive. Thank you!"
                                                                       : "Sign up to join hands for this drive"}
                                                   </p>
@@ -84,7 +101,7 @@ const JoinSection = ({
                                                   type="button"
                                                   onClick={handleJoin}
                                                   disabled={loading}
-                                                  className={`inline-flex h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border px-6 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-500/50 disabled:cursor-not-allowed disabled:opacity-70 sm:flex-none ${joined
+                                                  className={`inline-flex h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border px-6 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-500/50 disabled:cursor-not-allowed disabled:opacity-70 sm:flex-none ${showJoined
                                                                       ? "border-[#829f20] bg-[#829f20] text-white shadow-[0_8px_24px_-10px_rgba(130,159,32,0.7)]"
                                                                       : "border-lime-800/20 bg-gradient-to-br from-lime-100 to-lime-200 text-lime-900 hover:brightness-95 dark:border-lime-200/15 dark:from-[#2b3a1a] dark:to-[#1d2a14] dark:text-lime-100/90 dark:shadow-inner dark:shadow-white/5 dark:hover:brightness-110"
                                                             }`}
@@ -94,8 +111,8 @@ const JoinSection = ({
                                                   ) : (
                                                             <HeartHandshake size={17} strokeWidth={1.75} />
                                                   )}
-                                                  {joined ? "Joined" : "Join Event"}
-                                                  {joined && <Check size={16} strokeWidth={2.5} />}
+                                                  {showJoined ? "Joined" : "Join Event"}
+                                                  {showJoined && <Check size={16} strokeWidth={2.5} />}
                                         </button>
                               </div>
                     </section>

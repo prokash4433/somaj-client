@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   HandHeart,
   CalendarDays,
@@ -44,10 +45,21 @@ const Navbar = () => {
   const user = session?.user;
 
   const handleLogout = async () => {
-    await authClient.signOut();
-    setOpen(false);
-    router.push("/");
-    router.refresh();
+    const toastId = toast.loading("Logging out...");
+
+    try {
+      const { error } = await authClient.signOut();
+      if (error) throw error;
+
+      setOpen(false);
+      toast.success("Logged out successfully. See you soon! 👋", {
+        id: toastId,
+      });
+      router.push("/");
+      router.refresh();
+    } catch {
+      toast.error("Logout failed. Please try again.", { id: toastId });
+    }
   };
 
   return (
