@@ -69,6 +69,27 @@ const LoginPage = () => {
           const [showPassword, setShowPassword] = useState(false);
           const [password, setPassword] = useState("");
 
+          const handleGoogleLogin = async () => {
+                    try {
+                              const { data, error } = await authClient.signIn.social({
+                                        provider: "google",
+                                        callbackURL: "/events",
+                                        errorCallbackURL: "/register",
+                              });
+
+                              if (error) {
+                                        console.error("Google Auth Error:", error);
+                                        toast.error(error.message || "Google registration failed!");
+                                        return;
+                              }
+
+                              console.log("Google Auth Data:", data);
+                    } catch (error) {
+                              console.error("Google Auth Exception:", error);
+                              toast.error("Something went wrong!");
+                    }
+          };
+
           return (
                     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 pb-12 pt-28 text-foreground">
 
@@ -192,9 +213,9 @@ const LoginPage = () => {
                                                                       <div className="flex-grow border-t border-[#829f20]/20 dark:border-white/10" />
                                                             </div>
 
-                                                            {/* Google Register Button */}
-                                                            <Button
-                                                                      type="button"
+                    {/* Google Register Button */}
+         <Button
+                                                                      onClick={handleGoogleLogin}                                                            type="button"
                                                                       variant="outline"
                                                                       className="h-12 w-full cursor-pointer rounded-xl border border-[#829f20]/25 bg-white text-[15px] font-semibold text-[#1f3314] shadow-none transition-all duration-300 hover:border-[#829f20]/60 hover:bg-[#f6f9ec] dark:border-white/10 dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/[0.08]"
                                                             >
