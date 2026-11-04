@@ -49,6 +49,9 @@ const RegisterPage = () => {
                               password: string;
                     };
 
+
+
+
                     // Password validation
                     if (!/[A-Z]/.test(user.password)) {
                               toast.error("Password must contain at least one uppercase letter.");
@@ -110,6 +113,28 @@ const RegisterPage = () => {
           const strengthCount = passwordRules.filter(
                     (rule) => rule.isValid
           ).length;
+
+
+          const handleGoogleRegister = async () => {
+                    try {
+                              const { data, error } = await authClient.signIn.social({
+                                        provider: "google",
+                                        callbackURL: "/events",
+                                        errorCallbackURL: "/register",
+                              });
+
+                              if (error) {
+                                        console.error("Google Auth Error:", error);
+                                        toast.error(error.message || "Google registration failed!");
+                                        return;
+                              }
+
+                              console.log("Google Auth Data:", data);
+                    } catch (error) {
+                              console.error("Google Auth Exception:", error);
+                              toast.error("Something went wrong!");
+                    }
+          };
 
           return (
                     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 pb-12 pt-28 text-foreground">
@@ -320,38 +345,38 @@ const RegisterPage = () => {
                                                             </div>
 
                                                             {/* Google Register Button */}
-                                                            <Button
-                                                                      type="button"
+<Button
+                                                                      onClick={handleGoogleRegister}                                                            type="button"
                                                                       variant="outline"
                                                                       className="h-12 w-full cursor-pointer rounded-xl border border-[#829f20]/25 bg-white text-[15px] font-semibold text-[#1f3314] shadow-none transition-all duration-300 hover:border-[#829f20]/60 hover:bg-[#f6f9ec] dark:border-white/10 dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/[0.08]"
                                                             >
-                                                                      {/* Google Icon */}
-                                                                      <svg
-                                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                                viewBox="0 0 48 48"
-                                                                                className="h-5 w-5"
-                                                                                aria-hidden="true"
-                                                                      >
-                                                                                <path
-                                                                                          fill="#4285F4"
-                                                                                          d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11c-.5 2.5-2 4.6-4.2 6v5h6.8c4-3.7 6-9 6-14.7Z"
-                                                                                />
-                                                                                <path
-                                                                                          fill="#34A853"
-                                                                                          d="M24 44c5.4 0 9.9-1.8 13.2-4.8l-6.8-5c-1.8 1.2-4 2-6.4 2-4.9 0-9.1-3.3-10.6-7.8H6.4v5.1A20 20 0 0 0 24 44Z"
-                                                                                />
-                                                                                <path
-                                                                                          fill="#FBBC05"
-                                                                                          d="M13.4 28.4a12 12 0 0 1 0-8.8v-5.1H6.4a20 20 0 0 0 0 19l7-5.1Z"
-                                                                                />
-                                                                                <path
-                                                                                          fill="#EA4335"
-                                                                                          d="M24 11.8c2.9 0 5.5 1 7.5 3l5.8-5.8A19.5 19.5 0 0 0 24 4 20 20 0 0 0 6.4 14.5l7 5.1c1.5-4.5 5.7-7.8 10.6-7.8Z"
-                                                                                />
-                                                                      </svg>
+                                                            {/* Google Icon */}
+<svg
+xmlns="http://www.w3.org/2000/svg"
+viewBox="0 0 48 48"
+className="h-5 w-5"
+aria-hidden="true">
+          
+<path
+fill="#4285F4"
+d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11c-.5 2.5-2 4.6-4.2 6v5h6.8c4-3.7 6-9 6-14.7Z"/>
 
-                                                                      Continue with Google
-                                                            </Button>
+
+<path
+fill="#34A853"
+d="M24 44c5.4 0 9.9-1.8 13.2-4.8l-6.8-5c-1.8 1.2-4 2-6.4 2-4.9 0-9.1-3.3-10.6-7.8H6.4v5.1A20 20 0 0 0 24 44Z"/>
+                                                  
+<path
+fill="#FBBC05"
+d="M13.4 28.4a12 12 0 0 1 0-8.8v-5.1H6.4a20 20 0 0 0 0 19l7-5.1Z"/>
+                                        
+<path
+fill="#EA4335"
+d="M24 11.8c2.9 0 5.5 1 7.5 3l5.8-5.8A19.5 19.5 0 0 0 24 4 20 20 0 0 0 6.4 14.5l7 5.1c1.5-4.5 5.7-7.8 10.6-7.8Z"/>
+</svg>
+
+Continue with Google
+</Button>
                                                   </form>
 
                                                   {/* Footer */}

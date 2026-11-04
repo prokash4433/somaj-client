@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import toast from "react-hot-toast";
+ 
 import {
           ArrowRight,
           ArrowUpRight,
@@ -15,6 +15,7 @@ import {
           Users,
 } from "lucide-react";
 import { leaveEvent, useJoinedEvents } from "@/lib/joinedStorage";
+import { toast } from "sonner";
 
 const EventsRoute = "/events";
 
