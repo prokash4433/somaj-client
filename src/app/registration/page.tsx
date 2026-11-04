@@ -1,9 +1,8 @@
-
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
- 
+
 
 import {
           ArrowRight,
@@ -49,6 +48,22 @@ const RegisterPage = () => {
                               email: string;
                               password: string;
                     };
+
+                    // Password validation
+                    if (!/[A-Z]/.test(user.password)) {
+                              toast.error("Password must contain at least one uppercase letter.");
+                              return;
+                    }
+
+                    if (!/[a-z]/.test(user.password)) {
+                              toast.error("Password must contain at least one lowercase letter.");
+                              return;
+                    }
+
+                    if (user.password.length < 6) {
+                              toast.error("Password must be at least 6 characters long.");
+                              return;
+                    }
 
                     const { data, error } = await authClient.signUp.email({
                               name: user.name,
@@ -146,12 +161,12 @@ const RegisterPage = () => {
                                                                       <div className="group relative mt-2">
                                                                                 <User className={iconClass} strokeWidth={1.75} />
 
-                                        <Input
-                                        id="name"
-                                        name="name"
-                                        type="text"
-                                        autoComplete="name"
-                                        placeholder="Your Name"
+                                                                                <Input
+                                                                                          id="name"
+                                                                                          name="name"
+                                                                                          type="text"
+                                                                                          autoComplete="name"
+                                                                                          placeholder="Your Name"
                                                                                           className={inputClass}
                                                                                           required
                                                                                 />
@@ -247,8 +262,8 @@ const RegisterPage = () => {
                                                                                           <span
                                                                                                     key={index}
                                                                                                     className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${strengthCount > index
-                                                                                                                        ? "bg-[#829f20] dark:bg-[#a8cf35]"
-                                                                                                                        : "bg-[#829f20]/15 dark:bg-white/10"
+                                                                                                              ? "bg-[#829f20] dark:bg-[#a8cf35]"
+                                                                                                              : "bg-[#829f20]/15 dark:bg-white/10"
                                                                                                               }`}
                                                                                           />
                                                                                 ))}
@@ -260,14 +275,14 @@ const RegisterPage = () => {
                                                                                           <li
                                                                                                     key={rule.label}
                                                                                                     className={`flex items-center gap-2 text-xs transition-colors ${rule.isValid
-                                                                                                                        ? "text-[#5f7a1a] dark:text-[#a8cf35]"
-                                                                                                                        : "text-[#6b7d63] dark:text-[#8aa093]"
+                                                                                                              ? "text-[#5f7a1a] dark:text-[#a8cf35]"
+                                                                                                              : "text-[#6b7d63] dark:text-[#8aa093]"
                                                                                                               }`}
                                                                                           >
                                                                                                     <span
                                                                                                               className={`flex h-4 w-4 items-center justify-center rounded-full transition-colors ${rule.isValid
-                                                                                                                                  ? "bg-[#829f20]/20 text-[#5f7a1a] dark:bg-[#829f20]/25 dark:text-[#c5e77b]"
-                                                                                                                                  : "bg-[#829f20]/10 text-[#8a9b82] dark:bg-white/10"
+                                                                                                                        ? "bg-[#829f20]/20 text-[#5f7a1a] dark:bg-[#829f20]/25 dark:text-[#c5e77b]"
+                                                                                                                        : "bg-[#829f20]/10 text-[#8a9b82] dark:bg-white/10"
                                                                                                                         }`}
                                                                                                     >
                                                                                                               {rule.isValid ? (
