@@ -40,8 +40,9 @@ const DeleteEventDialog = ({
           const [isDeleting, setIsDeleting] = useState(false);
 
           const handleDeleteEvent = async () => {
-
+                    
                     const token = await getTokenFromClient()
+                    
                     const id = eventId?.trim();
 
                     if (!id) {

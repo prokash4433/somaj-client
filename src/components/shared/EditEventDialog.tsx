@@ -98,7 +98,7 @@ const EditEventDialog = ({ event, onUpdated }: EditEventDialogProps) => {
 const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 e.preventDefault();
 
-const token = await getTokenFromClient()
+
 
 if (!event) {
 toast.error("Event information is missing.");
@@ -115,6 +115,7 @@ toast.error("Event ID is missing.");
                     setLoading(true);
 
                     try {
+                              const token = await getTokenFromClient()
                               const payload = {
                                         eventTitle: form.eventTitle.trim(),
                                         eventType: form.eventType,

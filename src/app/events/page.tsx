@@ -12,6 +12,7 @@ import {
           ImageOff,
 } from "lucide-react";
 import CreateEventCard from "@/components/shared/CreateEventCard";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const API_URL = "http://localhost:5000/events";
 
@@ -56,15 +57,22 @@ const UpcomingEventPage = () => {
           useEffect(() => {
                     const load = async () => {
                               try {
-                                        const res = await fetch(API_URL, { cache: "no-store" });
-                                        const data = await res.json();
-                                        const list = Array.isArray(data) ? data : data.events ?? data.data ?? [];
+                                 const token = await getTokenFromClient();
+               const res = await fetch(API_URL, 
+                  { cache: "no-store",
+                     headers:{
+                        "Content-Type": "application/json",
+                        authorization: `Bearer ${token}`
+                     }
+                   });
+               const data = await res.json();
+               const list = Array.isArray(data) ? data : data.events ?? data.data ?? [];
 
-                                        const today = new Date();
-                                        today.setHours(0, 0, 0, 0);
+               const today = new Date();
+               today.setHours(0, 0, 0, 0);
 
-                                        // Past event bad, soonest first
-                                        const upcoming = list
+               // Past event bad, soonest first
+               const upcoming = list
                                                   .map((raw: any, i: number) => normalize(raw, i))
                                                   .filter((e: EventItem) => !e.date || new Date(e.date) >= today)
                                                   .sort(
@@ -121,12 +129,12 @@ const UpcomingEventPage = () => {
           <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" strokeWidth={2.25} />
           Create Event
        </Link>
-                                        </div>
+                  </div>
 
-                                        <div className="mt-9 h-px w-full bg-black/10 dark:bg-white/[0.07]" />
+               <div className="mt-9 h-px w-full bg-black/10 dark:bg-white/[0.07]" />
 
-                                        {/* ───────── Filters + search ───────── */}
-                                        <div className="mt-7 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+               {/* ───────── Filters + search ───────── */}
+            <div className="mt-7 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                                   <div className="flex flex-wrap gap-2.5" role="tablist" aria-label="Event categories">
                                                             {CATEGORIES.map((c) => {
                                                                       const isActive = active === c;
