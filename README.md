@@ -21,7 +21,7 @@ experience.
 
 
 
-Technology Stack
+Technology Stack:-
 Frontend
 - Next.js --- React framework with App Router.
 - React --- Component-based user interface development.
