@@ -12,6 +12,7 @@ import {
           ImageOff,
           CalendarX2,
 } from "lucide-react";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const API_URL = "http://localhost:5000/events";
 const LIMIT = 6;
@@ -61,7 +62,14 @@ const RecentUpcomingEvent = () => {
           useEffect(() => {
                     const load = async () => {
                               try {
-                                        const res = await fetch(API_URL, { cache: "no-store" });
+                                        const token = await getTokenFromClient();
+                                        const res = await fetch(API_URL, { cache: "no-store",
+                                                  headers: {
+                                                            "Content-Type": "application/json",
+                                                            authorization: `Bearer ${token}`
+                                                  }
+                                        
+                                         });
                                         const data = await res.json();
                                         const list = Array.isArray(data) ? data : data.events ?? data.data ?? [];
 

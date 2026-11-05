@@ -43,12 +43,7 @@ const Newsfeed = () => {
                     setStatus("loading");
 
                     try {
-                              // TODO: নিজের API বসান, যেমন:
-                              // await fetch("http://localhost:5000/subscribe", {
-                              //   method: "POST",
-                              //   headers: { "Content-Type": "application/json" },
-                              //   body: JSON.stringify({ email: value }),
-                              // });
+                               
                               await new Promise((resolve) => setTimeout(resolve, 900));
 
                               setStatus("success");
