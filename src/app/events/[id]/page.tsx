@@ -13,9 +13,11 @@ import JoinSection from "./JoinSection";
 import VolunteersCard from "./VolunteersCard";
 import OrganizerContact from "./OrganizerContact";
 import { auth } from "@/lib/auth";
-import { getTokenFromServer } from "@/lib/getTokenFromServer";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000").replace(
+  /\/+$/,
+  ""
+);
 
 // ---- Builds relevant volunteer guidelines from the event's own data ----
 const buildGuidelines = (opts: {
@@ -131,26 +133,47 @@ const EventDetailsPage = async ({
 }) => {
   const { id } = await params;
 
+  // ---- Fetch event (public API, no token needed) ----
   let data: any = null;
 
-  const token = await getTokenFromServer();
-
   try {
-    const res = await fetch(`${API}/event/${id}`, {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
+    const res = await fetch(`${API}/event/${encodeURIComponent(id)}`, {
+      
+      headers: { Accept: "application/json" },
+      cache: "no-store",
     });
-    data = await res.json();
-  } catch {
+
+    const contentType = res.headers.get("content-type") || "";
+
+    if (!res.ok) {
+      console.warn(`Event API returned ${res.status} for event ${id}`);
+    } else if (contentType.toLowerCase().includes("application/json")) {
+      data = await res.json();
+    } else {
+      console.warn("Event API did not return JSON.");
+    }
+  } catch (error) {
+    console.error("Failed to load event details:", error);
     data = null;
   }
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  const isLoggedIn = !!session;
+
+  // ---- Session (only used to know if the visitor is logged in) ----
+  let isLoggedIn = false;
+
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    isLoggedIn = !!session;
+  } catch (error) {
+    console.error("Failed to read session:", error);
+  }
+
   // ---- Read values from the API response ----
-  const raw = data?.data ?? data?.event ?? data?.result ?? data;
+  const raw =
+    data && data?.success !== false
+      ? (data?.data ?? data?.event ?? data?.result ?? data)
+      : null;
   const event = Array.isArray(raw) ? raw[0] : raw;
 
   const title =
@@ -231,7 +254,7 @@ const EventDetailsPage = async ({
       : String(rawDate);
   }
 
-  // Volunteers (API theke jetuku ache)
+  // Volunteers
   const volunteerSource =
     event?.volunteers ??
     event?.joinedVolunteers ??
@@ -262,7 +285,7 @@ const EventDetailsPage = async ({
     event?.isJoined ?? event?.joined ?? event?.hasJoined
   );
 
-  // email -> { name, image } (volunteer দের নাম আর ছবি)
+  // email -> { name, image }
   const volunteerDetails: Record<string, { name?: string; image?: string }> =
     {};
   if (Array.isArray(volunteerSource)) {
@@ -277,7 +300,7 @@ const EventDetailsPage = async ({
     });
   }
 
-  // Organizer (login না থাকলে এই নামটা fallback হিসেবে দেখাবে)
+  // Organizer
   const orgRaw =
     event?.organizer ?? event?.createdBy ?? event?.creator ?? event?.user;
   const organizer = orgRaw && typeof orgRaw === "object" ? orgRaw : {};
