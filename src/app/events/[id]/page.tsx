@@ -14,7 +14,7 @@ import VolunteersCard from "./VolunteersCard";
 import OrganizerContact from "./OrganizerContact";
 import { auth } from "@/lib/auth";
 
-const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000").replace(
+const API = (process.env.NEXT_PUBLIC_API_URL ?? "https://somaj-backend.vercel.app").replace(
   /\/+$/,
   ""
 );

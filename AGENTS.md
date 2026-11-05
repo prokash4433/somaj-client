@@ -14,7 +14,7 @@ Single Next.js 16 App Router app (social events platform, "Somaj"). Not a monore
 
 - Routes in `src/app/`: `/`, `/events`, `/create-event`, `/login`, `/profile`. Path alias `@/*` → `src/*`.
 - UI primitives in `src/components/ui/` (shadcn-generated); page-level components in `src/components/`.
-- The backend is **not in this repo**: pages call hardcoded `http://localhost:5000` (`GET /events` in `src/app/events/page.tsx`, `POST /event` in `src/app/create-event/page.tsx`). Those fetches fail unless that separate server is running.
+- The backend is **not in this repo**: pages call hardcoded `https://somaj-backend.vercel.app` (`GET /events` in `src/app/events/page.tsx`, `POST /event` in `src/app/create-event/page.tsx`). Those fetches fail unless that separate server is running.
 
 ## Commands and baseline
 

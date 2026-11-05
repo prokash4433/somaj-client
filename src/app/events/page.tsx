@@ -14,7 +14,7 @@ import {
 import CreateEventCard from "@/components/shared/CreateEventCard";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
-const API_URL = "http://localhost:5000/events";
+const API_URL = "https://somaj-backend.vercel.app/events";
 
 const CATEGORIES = ["All", "Cleanup", "Plantation", "Donation", "Health Camp", "Education"];
 
