@@ -95,19 +95,18 @@ const EditEventDialog = ({ event, onUpdated }: EditEventDialogProps) => {
                     }));
           };
 
-const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-e.preventDefault();
+          const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+                    e.preventDefault();
 
+                    if (!event) {
+                              toast.error("Event information is missing.");
+                              return;
+                    }
 
+                    const eventId = event._id ?? event.id ?? event.eventId;
 
-if (!event) {
-toast.error("Event information is missing.");
-return;
-}
-const eventId = event._id ?? event.id ?? event.eventId;
-
-if (!eventId) {
-toast.error("Event ID is missing.");
+                    if (!eventId) {
+                              toast.error("Event ID is missing.");
                               console.error("Event object:", event);
                               return;
                     }
@@ -115,7 +114,8 @@ toast.error("Event ID is missing.");
                     setLoading(true);
 
                     try {
-                              const token = await getTokenFromClient()
+                              const token = await getTokenFromClient();
+
                               const payload = {
                                         eventTitle: form.eventTitle.trim(),
                                         eventType: form.eventType,
@@ -126,23 +126,22 @@ toast.error("Event ID is missing.");
                                         organizerEmail: form.organizerEmail.trim().toLowerCase(),
                               };
 
-const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/event/${encodeURIComponent(eventId)}`,
-          {
-method: "PATCH",
-headers: {
-"Content-Type": "application/json",
-authorization:`Bearer ${token}`
-},
-body: JSON.stringify(payload),
-}
-);
+                              const res = await fetch(
+                                        `${process.env.NEXT_PUBLIC_API_URL}/event/${encodeURIComponent(eventId)}`,
+                                        {
+                                                  method: "PATCH",
+                                                  headers: {
+                                                            "Content-Type": "application/json",
+                                                            authorization: `Bearer ${token}`,
+                                                  },
+                                                  body: JSON.stringify(payload),
+                                        }
+                              );
 
-const data = await res.json().catch(() => ({}));
+                              const data = await res.json().catch(() => ({}));
 
                               if (!res.ok) {
-                                        throw new Error(
-                                                  data.message || "Failed to submit event changes."
-                                        );
+                                        throw new Error(data.message || "Failed to submit event changes.");
                               }
 
                               const updatedEvent: EventData = {
@@ -199,8 +198,8 @@ const data = await res.json().catch(() => ({}));
                                                             </DialogTitle>
 
                                                             <DialogDescription className="text-sm leading-6 text-muted-foreground">
-                                                                      Update your event details below. Review the information
-                                                                      carefully before submitting your changes.
+                                                                      Update your event details below. Review the information carefully
+                                                                      before submitting your changes.
                                                             </DialogDescription>
                                                   </DialogHeader>
 
@@ -220,9 +219,7 @@ const data = await res.json().catch(() => ({}));
                                                                                           name="eventTitle"
                                                                                           required
                                                                                           value={form.eventTitle}
-                                                                                          onChange={(e) =>
-                                                                                                    updateField("eventTitle", e.target.value)
-                                                                                          }
+                                                                                          onChange={(e) => updateField("eventTitle", e.target.value)}
                                                                                           placeholder="Enter event title"
                                                                                           className="h-11 rounded-xl border-[#526b24] bg-background pl-10 focus-visible:border-[#829f20] focus-visible:ring-[#829f20]"
                                                                                 />
@@ -244,7 +241,7 @@ const data = await res.json().catch(() => ({}));
                                                                                           <Select
                                                                                                     value={form.eventType}
                                                                                                     onValueChange={(value) =>
-                                                                                                              updateField("eventType", value)
+                                                                                                              updateField("eventType", value ?? "")
                                                                                                     }
                                                                                                     required
                                                                                           >
@@ -284,9 +281,7 @@ const data = await res.json().catch(() => ({}));
                                                                                                     type="date"
                                                                                                     required
                                                                                                     value={form.eventDate}
-                                                                                                    onChange={(e) =>
-                                                                                                              updateField("eventDate", e.target.value)
-                                                                                                    }
+                                                                                                    onChange={(e) => updateField("eventDate", e.target.value)}
                                                                                                     className="h-11 rounded-xl border-[#526b24] bg-background pl-10"
                                                                                           />
                                                                                 </div>
@@ -308,9 +303,7 @@ const data = await res.json().catch(() => ({}));
                                                                                           name="location"
                                                                                           required
                                                                                           value={form.location}
-                                                                                          onChange={(e) =>
-                                                                                                    updateField("location", e.target.value)
-                                                                                          }
+                                                                                          onChange={(e) => updateField("location", e.target.value)}
                                                                                           placeholder="Enter event location"
                                                                                           className="h-11 rounded-xl border-[#526b24] bg-background pl-10"
                                                                                 />
@@ -332,9 +325,7 @@ const data = await res.json().catch(() => ({}));
                                                                                           name="thumbnail"
                                                                                           type="url"
                                                                                           value={form.thumbnail}
-                                                                                          onChange={(e) =>
-                                                                                                    updateField("thumbnail", e.target.value)
-                                                                                          }
+                                                                                          onChange={(e) => updateField("thumbnail", e.target.value)}
                                                                                           placeholder="https://..."
                                                                                           className="h-11 rounded-xl border-[#526b24] bg-background pl-10"
                                                                                 />
@@ -351,19 +342,14 @@ const data = await res.json().catch(() => ({}));
                                                                                 name="description"
                                                                                 required
                                                                                 value={form.description}
-                                                                                onChange={(e) =>
-                                                                                          updateField("description", e.target.value)
-                                                                                }
+                                                                                onChange={(e) => updateField("description", e.target.value)}
                                                                                 placeholder="Describe the purpose and activities of your event..."
                                                                                 className="min-h-28 resize-y rounded-xl border-[#526b24] bg-background p-3 leading-7"
                                                                       />
                                                             </div>
 
                                                             <div className="space-y-2">
-                                                                      <Label
-                                                                                htmlFor="edit-organizerEmail"
-                                                                                className="font-semibold"
-                                                                      >
+                                                                      <Label htmlFor="edit-organizerEmail" className="font-semibold">
                                                                                 Organizer Email <RequiredMark />
                                                                       </Label>
 
