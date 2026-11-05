@@ -1,35 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Somaj --- Social Development Events Platform
+Together, we build a better society.
 
-## Getting Started
 
-First, run the development server:
- 
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
- 
+Somaj is a community-driven social development platform that brings
+people together to create, discover, join, and manage meaningful
+community service events. It helps individuals take part in local
+initiatives such as winter clothing distribution, blanket donation
+campaigns, community cleanups, tree plantation programs, and other
+social welfare activities.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The platform is designed to make community participation easier through
+a clean, responsive interface and a straightforward event management
+experience.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+🚀 Live Project
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+🔗 Live Link:- https://somaj-frontend.vercel.app
+🔗 GitHub Repository (server): https://github.com/prokash4433/somaj-server
+🔗 GitHub Repository (client): https://github.com/prokash4433/somaj-client
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Technology Stack
+Frontend
+- Next.js --- React framework with App Router.
+- React --- Component-based user interface development.
+- TypeScript --- Type-safe application development.
+- Tailwind CSS --- Utility-first styling.
+- Shadcn UI --- Reusable interface elements.
+- Lucide React --- Icons and visual elements.
+  
+Backend
+- Node.js --- JavaScript runtime.
+- Express.js --- Backend API development.
+- MongoDB --- Database for application data.
+  
+Authentication & Security
+- Better Auth --- Authentication management.
+- MongoDB Adapter --- Database integration for authentication.
+- JWT --- Token-based API authentication and authorization.
+  
+Deployment
+- Vercel --- Frontend and backend deployment support.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Design & User Experience
+Somaj follows a modern, community-focused visual direction.
+- Dark green interface with lime-green accent colors.
+- Clear visual hierarchy and readable typography.
+- Consistent cards, buttons, and section spacing.
+- Community-focused imagery.
+- Responsive navigation and page layouts.
+- Light and dark theme support.
 
-## Deploy on Vercel
+Authentication & Security
+Somaj uses authentication and authorization to protect user-specific
+functionality.
+- Public users can browse events and view event details.
+- Authenticated users can create and join events.
+- Private pages require an authenticated session.
+- JWT validation is used for protected API operations where required.
+- Event ownership is checked before allowing update or delete
+  operations.
+- Password forms include the required validation rules.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
