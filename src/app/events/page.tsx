@@ -57,12 +57,12 @@ const UpcomingEventPage = () => {
           useEffect(() => {
                     const load = async () => {
                               try {
-                                 const token = await getTokenFromClient();
+                                  
                const res = await fetch(API_URL, 
                   { cache: "no-store",
                      headers:{
                         "Content-Type": "application/json",
-                        authorization: `Bearer ${token}`
+                         
                      }
                    });
                const data = await res.json();
