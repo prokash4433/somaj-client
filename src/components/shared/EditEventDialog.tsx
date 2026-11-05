@@ -31,6 +31,7 @@ import {
           SelectTrigger,
           SelectValue,
 } from "@/components/ui/select";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 type EventData = {
           id?: string;
@@ -94,18 +95,19 @@ const EditEventDialog = ({ event, onUpdated }: EditEventDialogProps) => {
                     }));
           };
 
-          const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-                    e.preventDefault();
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+e.preventDefault();
 
-                    if (!event) {
-                              toast.error("Event information is missing.");
-                              return;
-                    }
+const token = await getTokenFromClient()
 
-                    const eventId = event._id ?? event.id ?? event.eventId;
+if (!event) {
+toast.error("Event information is missing.");
+return;
+}
+const eventId = event._id ?? event.id ?? event.eventId;
 
-                    if (!eventId) {
-                              toast.error("Event ID is missing.");
+if (!eventId) {
+toast.error("Event ID is missing.");
                               console.error("Event object:", event);
                               return;
                     }
@@ -123,18 +125,18 @@ const EditEventDialog = ({ event, onUpdated }: EditEventDialogProps) => {
                                         organizerEmail: form.organizerEmail.trim().toLowerCase(),
                               };
 
-                              const res = await fetch(
-                                        `http://localhost:5000/event/${encodeURIComponent(eventId)}`,
-                                        {
-                                                  method: "PATCH",
-                                                  headers: {
-                                                            "Content-Type": "application/json",
-                                                  },
-                                                  body: JSON.stringify(payload),
-                                        }
-                              );
+const res = await fetch( `http://localhost:5000/event/${encodeURIComponent(eventId)}`,
+          {
+method: "PATCH",
+headers: {
+"Content-Type": "application/json",
+authorization:`Bearer ${token}`
+},
+body: JSON.stringify(payload),
+}
+);
 
-                              const data = await res.json().catch(() => ({}));
+const data = await res.json().catch(() => ({}));
 
                               if (!res.ok) {
                                         throw new Error(

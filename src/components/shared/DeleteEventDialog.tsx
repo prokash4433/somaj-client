@@ -21,6 +21,7 @@ import {
           Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 type DeleteEventDialogProps = {
           eventId: string;
@@ -39,6 +40,8 @@ const DeleteEventDialog = ({
           const [isDeleting, setIsDeleting] = useState(false);
 
           const handleDeleteEvent = async () => {
+
+                    const token = await getTokenFromClient()
                     const id = eventId?.trim();
 
                     if (!id) {
@@ -61,12 +64,16 @@ const DeleteEventDialog = ({
                                         return;
                               }
 
-                              const res = await fetch(
-                                        `http://localhost:5000/event/${encodeURIComponent(id)}`,
-                                        { method: "DELETE" }
-                              );
+          const res = await fetch(`http://localhost:5000/event/${encodeURIComponent(id)}`,
+          { method: "DELETE",
+                    headers: {
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${token}`
+                    },        
+           }
+          );
 
-                              const data = await res.json().catch(() => null);
+          const data = await res.json().catch(() => null);
 
                               // Already deleted on the server: still remove it from the page.
                               const alreadyGone = res.status === 404 || data?.deletedCount === 0;

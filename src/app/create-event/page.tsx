@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -31,6 +30,8 @@ import {
           SelectTrigger,
           SelectValue,
 } from "@/components/ui/select";
+import { authClient } from "@/lib/auth-client";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const RequiredMark = () => (
           <span className="ml-1 text-base font-extrabold text-red-500">*</span>
@@ -69,11 +70,14 @@ const CreateEventPage = () => {
                     : undefined;
 
           // Submit event
-          const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+          const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                     e.preventDefault();
 
+                    // IMPORTANT: form data must be read BEFORE any await
                     const formElement = e.currentTarget;
                     const formData = new FormData(formElement);
+
+                    const token =await getTokenFromClient()
 
                     const eventDate = formData.get("eventDate") as string;
 
@@ -94,40 +98,32 @@ const res = await fetch("http://localhost:5000/event", {
 method: "POST",
 headers: {
 "Content-Type": "application/json",
+authorization: `Bearer ${token}`,
 },
-          body: JSON.stringify(eventData),
-          });
+body: JSON.stringify(eventData),
+});
 
-          const data = await res.json().catch(() => ({}));
+const data = await res.json().catch(() => ({}));
 
-          if (!res.ok) {
-           throw new Error(data.message || "Failed to create event.");
-          }
+                              if (!res.ok) {
+                                        throw new Error(data.message || "Failed to create event.");
+                              }
 
-          console.log("Event Created Successfully:", data);
+                              console.log("Event Created Successfully:", data);
 
                               // Save event to localStorage for the Manage Events page
                               const newEvent = {
-                                        id:
-                                                  data?._id ||
-                                                  data?.insertedId ||
-                                                  crypto.randomUUID(),
+                                        id: data?._id || data?.insertedId || crypto.randomUUID(),
                                         title: String(eventData.eventTitle),
                                         category: String(eventData.eventType),
                                         date: String(eventData.eventDate),
                                         location: String(eventData.location),
                                         description: String(eventData.description),
-                                        organizer: String(eventData.organizerEmail)
-                                                  .trim()
-                                                  .toLowerCase(),
-                                        image:
-                                                  String(eventData.thumbnail || "").trim() ||
-                                                  DEFAULT_IMAGE,
+                                        organizer: String(eventData.organizerEmail).trim().toLowerCase(),
+                                        image: String(eventData.thumbnail || "").trim() || DEFAULT_IMAGE,
                               };
 
-                              const storedEvents = JSON.parse(
-                                        localStorage.getItem("events") ?? "[]"
-                              );
+                              const storedEvents = JSON.parse(localStorage.getItem("events") ?? "[]");
 
                               localStorage.setItem(
                                         "events",
@@ -169,116 +165,111 @@ headers: {
           return (
                     <main className="mt-20 min-h-screen w-full bg-background px-4 py-6 text-foreground transition-colors duration-300 sm:px-6">
                               <div className="mx-auto max-w-3xl">
-                    {/* Back Navigation */}
-          <Link
-          href="/events"
-          className="mb-4 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-[#829f20]"
-          >
-          <ArrowLeft size={16} />
-          Back to Upcoming Events
-          </Link>
+                                        {/* Back Navigation */}
+                                        <Link
+                                                  href="/events"
+                                                  className="mb-4 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-[#829f20]"
+                                        >
+                                                  <ArrowLeft size={16} />
+                                                  Back to Upcoming Events
+                                        </Link>
 
-                    {/* Main Card */}
-          <Card className="overflow-hidden rounded-2xl border border-[#526b24] bg-card shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.01] hover:border-[#829f20]">
-          <CardContent className="p-5 sm:p-6 md:p-7">
-          {/* Header */}
-          <div className="mb-6 space-y-2">
-          <div className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[#526b24] bg-[#3b5426]/10 px-3 py-1.5 text-sm font-semibold text-[#829f20] transition-all duration-300 hover:border-[#829f20] hover:bg-[#3b5426] hover:text-white">
-          <Sparkles size={15} />
-          Social Service Drive
-          </div>
+                                        {/* Main Card */}
+                                        <Card className="overflow-hidden rounded-2xl border border-[#526b24] bg-card shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.01] hover:border-[#829f20]">
+                                                  <CardContent className="p-5 sm:p-6 md:p-7">
+                                                            {/* Header */}
+                                                            <div className="mb-6 space-y-2">
+                                                                      <div className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[#526b24] bg-[#3b5426]/10 px-3 py-1.5 text-sm font-semibold text-[#829f20] transition-all duration-300 hover:border-[#829f20] hover:bg-[#3b5426] hover:text-white">
+                                                                                <Sparkles size={15} />
+                                                                                Social Service Drive
+                                                                      </div>
 
-          <div className="space-y-2">
-          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-          Create a Community Event
-          </h1>
-          <p className="max-w-2xl text-base leading-7 text-muted-foreground">
-          Organize a local relief effort, environmental
-          cleanup, or community support drive.
-                              </p>
-                              </div>
-                               </div>
+                                                                      <div className="space-y-2">
+                                                                                <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+                                                                                          Create a Community Event
+                                                                                </h1>
+                                                                                <p className="max-w-2xl text-base leading-7 text-muted-foreground">
+                                                                                          Organize a local relief effort, environmental cleanup, or
+                                                                                          community support drive.
+                                                                                </p>
+                                                                      </div>
+                                                            </div>
 
-                                        {/* Event Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-                                        {/* Event Title */}
-          <div className="space-y-2">
-           <Label
-          htmlFor="eventTitle"
-          className="text-base font-semibold"
-          >
-          Event Title <RequiredMark />
-          </Label>
+                                                            {/* Event Form */}
+                                                            <form onSubmit={handleSubmit} className="space-y-4">
+                                                                      {/* Event Title */}
+                                                                      <div className="space-y-2">
+                                                                                <Label htmlFor="eventTitle" className="text-base font-semibold">
+                                                                                          Event Title <RequiredMark />
+                                                                                </Label>
 
-          <div className="relative">
-          <Type
+                                                                                <div className="relative">
+                                                                                          <Type
                                                                                                     size={18}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                                                                                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                                                                                           />
 
                                                                                           <Input
                                                                                                     id="eventTitle"
                                                                                                     name="eventTitle"
-          required
-          placeholder="e.g. Winter Clothes Distribution – Mohammadpur, Dhaka"
-          className="h-11 rounded-xl border-[#526b24] bg-background pl-10 text-base transition-all duration-300 focus-visible:border-[#829f20] focus-visible:ring-[#829f20]"/>
-                    </div>
-                              </div>
+                                                                                                    required
+                                                                                                    placeholder="e.g. Winter Clothes Distribution – Mohammadpur, Dhaka"
+                                                                                                    className="h-11 rounded-xl border-[#526b24] bg-background pl-10 text-base transition-all duration-300 focus-visible:border-[#829f20] focus-visible:ring-[#829f20]"
+                                                                                          />
+                                                                                </div>
+                                                                      </div>
 
-                              {/* Event Type and Date */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                              {/* Event Type */}
-          <div className="space-y-2">
-                              <Label
+                                                                      {/* Event Type and Date */}
+                                                                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                                                                {/* Event Type */}
+                                                                                <div className="space-y-2">
+                                                                                          <Label
                                                                                                     htmlFor="eventType"
-                                                                                                    className="text-base font-semibold">
+                                                                                                    className="text-base font-semibold"
+                                                                                          >
                                                                                                     Event Type <RequiredMark />
-                              </Label>
+                                                                                          </Label>
 
-          <div className="relative">
-          <Tag
-          size={17}
-          className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-muted-foreground"/>
+                                                                                          <div className="relative">
+                                                                                                    <Tag
+                                                                                                              size={17}
+                                                                                                              className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-muted-foreground"
+                                                                                                    />
 
-          <Select name="eventType" required>
-          <SelectTrigger
-          id="eventType"
-          className="h-11 cursor-pointer rounded-xl border-[#526b24] bg-background pl-10 text-base transition-all duration-300 hover:border-[#829f20] hover:bg-[#3b5426]/10 focus:border-[#829f20]">
-          <SelectValue placeholder="Select event type" />
-          </SelectTrigger>
+                                                                                                    <Select name="eventType" required>
+                                                                                                              <SelectTrigger
+                                                                                                                        id="eventType"
+                                                                                                                        className="h-11 cursor-pointer rounded-xl border-[#526b24] bg-background pl-10 text-base transition-all duration-300 hover:border-[#829f20] hover:bg-[#3b5426]/10 focus:border-[#829f20]"
+                                                                                                              >
+                                                                                                                        <SelectValue placeholder="Select event type" />
+                                                                                                              </SelectTrigger>
 
-          <SelectContent className="cursor-pointer border-[#829f20] bg-white text-gray-900 dark:border-[#526b24] dark:bg-[#26391c] dark:text-white">
-                                                                                                                        <SelectItem value="Plantation">
-                                                                                                                                  Plantation
-                                                                                                                        </SelectItem>
-                                                                                                                        <SelectItem value="Cleanup">
-                                                                                                                                  Cleanup
-                                                                                                                        </SelectItem>
-                                                                                                                        <SelectItem value="Donation">
-                                                                                                                                  Donation
-                                                                                                                        </SelectItem>
+                                                                                                              <SelectContent className="cursor-pointer border-[#829f20] bg-white text-gray-900 dark:border-[#526b24] dark:bg-[#26391c] dark:text-white">
+                                                                                                                        <SelectItem value="Plantation">Plantation</SelectItem>
+                                                                                                                        <SelectItem value="Cleanup">Cleanup</SelectItem>
+                                                                                                                        <SelectItem value="Donation">Donation</SelectItem>
                                                                                                                         <SelectItem value="Community Support">
                                                                                                                                   Community Support
                                                                                                                         </SelectItem>
                                                                                                                         <SelectItem value="Other">Other</SelectItem>
                                                                                                               </SelectContent>
                                                                                                     </Select>
-                    </div>
-                              </div>
+                                                                                          </div>
+                                                                                </div>
 
-                              {/* Event Date */}
-<div className="space-y-2">
-                    <Label
+                                                                                {/* Event Date */}
+                                                                                <div className="space-y-2">
+                                                                                          <Label
                                                                                                     htmlFor="eventDate"
                                                                                                     className="text-base font-semibold"
-                              >
+                                                                                          >
                                                                                                     Event Date <RequiredMark />
-                    </Label>
+                                                                                          </Label>
 
-          <div className="relative">
+                                                                                          <div className="relative">
                                                                                                     <CalendarDays
                                                                                                               size={17}
-         className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                                                                                              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                                                                                                     />
 
                                                                                                     <Input
@@ -288,26 +279,25 @@ headers: {
                                                                                                               required
                                                                                                               min={minDate}
                                                                                                               disabled={!today}
-          className="h-11 cursor-pointer rounded-xl border-[#526b24] bg-background pl-10 text-base transition-all duration-300 hover:border-[#829f20] focus-visible:border-[#829f20] focus-visible:ring-[#829f20]"
-          /></div>
+                                                                                                              className="h-11 cursor-pointer rounded-xl border-[#526b24] bg-background pl-10 text-base transition-all duration-300 hover:border-[#829f20] focus-visible:border-[#829f20] focus-visible:ring-[#829f20]"
+                                                                                                    />
+                                                                                          </div>
 
-          <p className="text-sm text-muted-foreground">
-          Event date must be in the future.
-                              </p>
-                    </div>
-          </div>
+                                                                                          <p className="text-sm text-muted-foreground">
+                                                                                                    Event date must be in the future.
+                                                                                          </p>
+                                                                                </div>
+                                                                      </div>
 
-                    {/* Location */}
-          <div className="space-y-2">
-           <Label
-          htmlFor="location"
-          className="text-base font-semibold">
-          Location / Venue <RequiredMark />
-          </Label>
-          <div className="relative">
-           <MapPin
+                                                                      {/* Location */}
+                                                                      <div className="space-y-2">
+                                                                                <Label htmlFor="location" className="text-base font-semibold">
+                                                                                          Location / Venue <RequiredMark />
+                                                                                </Label>
+                                                                                <div className="relative">
+                                                                                          <MapPin
                                                                                                     size={18}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                                                                                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                                                                                           />
 
                                                                                           <Input
@@ -320,18 +310,16 @@ headers: {
                                                                                 </div>
                                                                       </div>
 
-                              {/* Thumbnail Image URL */}
-          <div className="space-y-2">
-          <Label
-           htmlFor="thumbnail"
-          className="text-base font-semibold">
-          Thumbnail Image URL
-          </Label>
+                                                                      {/* Thumbnail Image URL */}
+                                                                      <div className="space-y-2">
+                                                                                <Label htmlFor="thumbnail" className="text-base font-semibold">
+                                                                                          Thumbnail Image URL
+                                                                                </Label>
 
-          <div className="relative">
-          <ImageIcon
+                                                                                <div className="relative">
+                                                                                          <ImageIcon
                                                                                                     size={18}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                                                                                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                                                                                           />
 
                                                                                           <Input
@@ -345,34 +333,36 @@ headers: {
                                                                       </div>
 
                                                                       {/* Description */}
-          <div className="space-y-2">
-          <Label
-          htmlFor="description"
-          className="text-base font-semibold"
-          >
-          Event Description <RequiredMark />
-          </Label>
+                                                                      <div className="space-y-2">
+                                                                                <Label
+                                                                                          htmlFor="description"
+                                                                                          className="text-base font-semibold"
+                                                                                >
+                                                                                          Event Description <RequiredMark />
+                                                                                </Label>
 
-           <Textarea
-          id="description"
-          name="description"
-          required
-          placeholder="Explain the purpose of the drive, volunteers required, items being distributed or tasks to complete..."
-          className="min-h-28 resize-y rounded-xl border-[#526b24] bg-background p-3 text-base leading-7 transition-all duration-300 focus-visible:border-[#829f20] focus-visible:ring-[#829f20] sm:min-h-32"/>
-          </div>
+                                                                                <Textarea
+                                                                                          id="description"
+                                                                                          name="description"
+                                                                                          required
+                                                                                          placeholder="Explain the purpose of the drive, volunteers required, items being distributed or tasks to complete..."
+                                                                                          className="min-h-28 resize-y rounded-xl border-[#526b24] bg-background p-3 text-base leading-7 transition-all duration-300 focus-visible:border-[#829f20] focus-visible:ring-[#829f20] sm:min-h-32"
+                                                                                />
+                                                                      </div>
 
-                              {/* Organizer Email */}
-          <div className="space-y-2">
-          <Label
-          htmlFor="organizerEmail"
-          className="text-base font-semibold">
-          Organizer Email <RequiredMark />
-          </Label>
+                                                                      {/* Organizer Email */}
+                                                                      <div className="space-y-2">
+                                                                                <Label
+                                                                                          htmlFor="organizerEmail"
+                                                                                          className="text-base font-semibold"
+                                                                                >
+                                                                                          Organizer Email <RequiredMark />
+                                                                                </Label>
 
-          <div className="relative">
-          <Mail
+                                                                                <div className="relative">
+                                                                                          <Mail
                                                                                                     size={18}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                                                                                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                                                                                           />
 
                                                                                           <Input
@@ -386,11 +376,11 @@ headers: {
                                                                                 </div>
                                                                       </div>
 
-          {/* Publish Button */}
-          <Button
-          type="submit"
+                                                                      {/* Publish Button */}
+                                                                      <Button
+                                                                                type="submit"
                                                                                 disabled={!today || loading}
-className="h-12 w-full cursor-pointer rounded-xl border border-[#526b24] bg-[#3b5426] text-base font-bold text-white shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-[#829f20] hover:bg-[#3b5426] hover:text-white active:scale-[0.98] disabled:cursor-not-allowed disabled:hover:scale-100"
+                                                                                className="h-12 w-full cursor-pointer rounded-xl border border-[#526b24] bg-[#3b5426] text-base font-bold text-white shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-[#829f20] hover:bg-[#3b5426] hover:text-white active:scale-[0.98] disabled:cursor-not-allowed disabled:hover:scale-100"
                                                                       >
                                                                                 <PlusCircle size={19} className="mr-2" />
                                                                                 {loading ? "Publishing..." : "Publish Event"}

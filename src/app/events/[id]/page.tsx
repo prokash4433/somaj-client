@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cookies, headers } from "next/headers";
+import {   headers } from "next/headers";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -13,6 +13,7 @@ import JoinSection from "./JoinSection";
 import VolunteersCard from "./VolunteersCard";
 import OrganizerContact from "./OrganizerContact";
 import { auth } from "@/lib/auth";
+import { getTokenFromServer } from "@/lib/getTokenFromServer";
 
 // const API = process.env.API_URL ?? "http://localhost:5000";
 
@@ -132,10 +133,7 @@ const EventDetailsPage = async ({
 
   let data: any = null;
 
-  const jwtToken = await auth.api.getToken({
-    headers:await headers(),
-  })
- const token = jwtToken?.token
+  const token = await getTokenFromServer()
     
   try {
     const res = await fetch(`http://localhost:5000/event/${id}`, {
