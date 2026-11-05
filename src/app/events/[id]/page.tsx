@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -12,8 +12,9 @@ import {
 import JoinSection from "./JoinSection";
 import VolunteersCard from "./VolunteersCard";
 import OrganizerContact from "./OrganizerContact";
+import { auth } from "@/lib/auth";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+// const API = process.env.API_URL ?? "http://localhost:5000";
 
 // ---- Builds relevant volunteer guidelines from the event's own data ----
 const buildGuidelines = (opts: {
@@ -129,26 +130,27 @@ const EventDetailsPage = async ({
 }) => {
   const { id } = await params;
 
-  // ---- Login check (cookie based) ----
-  const cookieStore = await cookies();
-  const isLoggedIn = cookieStore
-    .getAll()
-    .some((c) => /(token|session|jwt|auth)/i.test(c.name) && !!c.value);
-
   let data: any = null;
+
+  const jwtToken = await auth.api.getToken({
+    headers:await headers(),
+  })
+ const token = jwtToken?.token
+    
   try {
-    const res = await fetch(`${API}/event/${id}`, {
+    const res = await fetch(`http://localhost:5000/event/${id}`, {
       headers: {
-        authorization: "user logged in",
-        cookie: cookieStore.toString(),
-      },
-      cache: "no-store",
+        authorization: `Bearer ${token}`
+      }
     });
     data = await res.json();
   } catch {
     data = null;
   }
-
+  const session = await auth.api.getSession({
+     headers: await headers() 
+    });
+  const isLoggedIn = !!session;
   // ---- Read values from the API response ----
   const raw = data?.data ?? data?.event ?? data?.result ?? data;
   const event = Array.isArray(raw) ? raw[0] : raw;

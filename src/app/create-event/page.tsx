@@ -90,21 +90,21 @@ const CreateEventPage = () => {
                     try {
                               setLoading(true);
 
-                              const res = await fetch("http://localhost:5000/event", {
-                                        method: "POST",
-                                        headers: {
-                                                  "Content-Type": "application/json",
-                                        },
-                                        body: JSON.stringify(eventData),
-                              });
+const res = await fetch("http://localhost:5000/event", {
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+},
+          body: JSON.stringify(eventData),
+          });
 
-                              const data = await res.json().catch(() => ({}));
+          const data = await res.json().catch(() => ({}));
 
-                              if (!res.ok) {
-                                        throw new Error(data.message || "Failed to create event.");
-                              }
+          if (!res.ok) {
+           throw new Error(data.message || "Failed to create event.");
+          }
 
-                              console.log("Event Created Successfully:", data);
+          console.log("Event Created Successfully:", data);
 
                               // Save event to localStorage for the Manage Events page
                               const newEvent = {
