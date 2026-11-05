@@ -65,3 +65,4 @@ functionality.
   operations.
 - Password forms include the required validation rules.
 
+Deploy on Vercel: https://somaj-frontend.vercel.app
