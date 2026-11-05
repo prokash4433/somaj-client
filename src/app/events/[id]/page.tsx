@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {   headers } from "next/headers";
+import { headers } from "next/headers";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -15,7 +15,7 @@ import OrganizerContact from "./OrganizerContact";
 import { auth } from "@/lib/auth";
 import { getTokenFromServer } from "@/lib/getTokenFromServer";
 
-// const API = process.env.API_URL ?? "http://localhost:5000";
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
 
 // ---- Builds relevant volunteer guidelines from the event's own data ----
 const buildGuidelines = (opts: {
@@ -133,21 +133,21 @@ const EventDetailsPage = async ({
 
   let data: any = null;
 
-  const token = await getTokenFromServer()
-    
+  const token = await getTokenFromServer();
+
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/event/${id}`, {
+    const res = await fetch(`${API}/event/${id}`, {
       headers: {
-        authorization: `Bearer ${token}`
-      }
+        authorization: `Bearer ${token}`,
+      },
     });
     data = await res.json();
   } catch {
     data = null;
   }
   const session = await auth.api.getSession({
-     headers: await headers() 
-    });
+    headers: await headers(),
+  });
   const isLoggedIn = !!session;
   // ---- Read values from the API response ----
   const raw = data?.data ?? data?.event ?? data?.result ?? data;
@@ -250,16 +250,21 @@ const EventDetailsPage = async ({
   const baseEmails: string[] = Array.isArray(volunteerSource)
     ? volunteerSource
       .map((v: any) =>
-        typeof v === "string" ? v : (v?.email ?? v?.userEmail ?? v?.user?.email)
+        typeof v === "string"
+          ? v
+          : (v?.email ?? v?.userEmail ?? v?.user?.email)
       )
       .filter(
         (e: unknown): e is string => typeof e === "string" && e.includes("@")
       )
     : [];
-  const apiJoined = Boolean(event?.isJoined ?? event?.joined ?? event?.hasJoined);
+  const apiJoined = Boolean(
+    event?.isJoined ?? event?.joined ?? event?.hasJoined
+  );
 
   // email -> { name, image } (volunteer দের নাম আর ছবি)
-  const volunteerDetails: Record<string, { name?: string; image?: string }> = {};
+  const volunteerDetails: Record<string, { name?: string; image?: string }> =
+    {};
   if (Array.isArray(volunteerSource)) {
     volunteerSource.forEach((v: any) => {
       if (!v || typeof v !== "object") return;
