@@ -65,7 +65,7 @@ const DeleteEventDialog = ({
                                         return;
                               }
 
-          const res = await fetch(`http://localhost:5000/event/${encodeURIComponent(id)}`,
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/event/${encodeURIComponent(id)}`,
           { method: "DELETE",
                     headers: {
                     "Content-Type": "application/json",

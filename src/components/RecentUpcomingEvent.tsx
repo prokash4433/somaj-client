@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
-const API_URL = "http://localhost:5000/events";
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/events`;
 const LIMIT = 6;
 
 type EventItem = {
@@ -63,10 +63,12 @@ const RecentUpcomingEvent = () => {
                     const load = async () => {
                               try {
                                         const token = await getTokenFromClient();
-                                        const res = await fetch(API_URL, { cache: "no-store",
+                                        const res = await fetch(API_URL, {
+                                                  method: "GET",
+                                                  cache: "no-store",
                                                   headers: {
                                                             "Content-Type": "application/json",
-                                                            authorization: `Bearer ${token}`
+                                                             authorization: `Bearer ${token}`
                                                   }
                                         
                                          });

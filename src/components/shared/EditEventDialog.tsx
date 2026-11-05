@@ -126,7 +126,7 @@ toast.error("Event ID is missing.");
                                         organizerEmail: form.organizerEmail.trim().toLowerCase(),
                               };
 
-const res = await fetch( `http://localhost:5000/event/${encodeURIComponent(eventId)}`,
+const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/event/${encodeURIComponent(eventId)}`,
           {
 method: "PATCH",
 headers: {
